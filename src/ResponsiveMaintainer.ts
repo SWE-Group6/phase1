@@ -1,6 +1,6 @@
 import { Metric } from "./Metric";
 
-export class NetScore extends Metric {
+export class ResponsiveMaintainer extends Metric {
     constructor() {
         super();
     }
