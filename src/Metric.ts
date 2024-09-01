@@ -1,6 +1,6 @@
 export abstract class Metric {
-    score: number;
-    latency: number;
+    protected score: number;
+    protected latency: number;
     url: string;
     version: string;
     abstract weight: number;
