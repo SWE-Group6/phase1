@@ -6,7 +6,7 @@ import { ResponsiveMaintainer } from "./ResponsiveMaintainer";
 export class Package {
     public url: string = "";
     public version: string = "";
-    public metrics: AllMetrics = new AllMetrics(this.url, this.version);
+    private metrics: AllMetrics = new AllMetrics(this.url, this.version);
 
     constructor(url: string, version: string) {
         this.url = url;
