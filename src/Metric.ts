@@ -1,4 +1,4 @@
-abstract class Metric {
+export abstract class Metric {
     score: number;
     latency: number;
 
