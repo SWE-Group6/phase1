@@ -1,10 +1,15 @@
 export abstract class Metric {
     score: number;
     latency: number;
+    url: string;
+    version: string;
+    abstract weight: number;
 
-    constructor() {
+    constructor(url: string, version: string) {
         this.score = 0;
         this.latency = 0;
+        this.url = url;
+        this.version = version;
     }
 
     getScore(): number {
@@ -13,7 +18,5 @@ export abstract class Metric {
     getLatency(): number {
         return this.latency;
     }
-    abstract calculateScore(): number;
-
-    abstract calculateLatency(): number;
+    abstract calculateScore(url: string, version: string): number;
 }
