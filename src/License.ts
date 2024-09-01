@@ -1,7 +1,7 @@
 import {Metric} from "./Metric";
 
 export class License extends Metric {
-    public weight: number;
+    public weight: number = 0.2;
 
     constructor() {
         super();

@@ -1,7 +1,7 @@
 import {Metric} from "./Metric";
 
 export class RampUp extends Metric {
-    public weight: number;
+    public weight: number = 0.15;
 
     constructor() {
         super();
