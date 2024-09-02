@@ -6,6 +6,7 @@ export class ResponsiveMaintainer extends Metric {
         super(url, version);
     }
     calculateScore(): number {
+        console.log("Calculating ResponsiveMaintainer");
         const start = performance.now();
 
         const end = performance.now();
