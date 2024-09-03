@@ -18,5 +18,6 @@ export abstract class Metric {
     getLatency(): number {
         return this.latency;
     }
+
     abstract calculateScore(url: string, version: string): number;
 }
