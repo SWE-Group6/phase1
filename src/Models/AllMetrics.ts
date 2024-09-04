@@ -4,6 +4,7 @@ import { Correctness } from "./Correctness";
 import { ResponsiveMaintainer } from "./ResponsiveMaintainer";
 import { RampUp } from "./RampUp";
 import { License } from "./License";
+import * as fs from 'fs';
 
 export class AllMetrics {
     // make an array of all metrics
@@ -26,6 +27,10 @@ export class AllMetrics {
     public calculateNetScore(): number {
         const start = performance.now();
         this.metrics.forEach(metric => {
+            //print the class name and the details to console.log by typecasting in to the concrete class
+            console.log(metric.constructor.name);
+            console.log("Score: " + metric.getScore());
+            console.log("Weight: " + metric.weight);
             this.netScore += metric.getScore() * metric.weight;            
         });
 
