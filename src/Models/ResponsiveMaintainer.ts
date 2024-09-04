@@ -1,16 +1,17 @@
 import { Metric } from "./Metric";
-export class BusFactor extends Metric {
+
+export class ResponsiveMaintainer extends Metric {
     public weight: number = 0.25;
     constructor(url: string, version: string) {
         super(url, version);
     }
-
-    calculateScore(url: string, version: string): number {
-        console.log("Calculating BusFactor");
+    calculateScore(): void {
+        console.log("Calculating ResponsiveMaintainer");
         const start = performance.now();
 
         const end = performance.now();
         this.latency = end - start;
-        return 0;
+        this.score = 10;
     }
+
 }

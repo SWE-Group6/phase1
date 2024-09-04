@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/Server/server.js",
     "generate-schema": "ts-node src/generateSchema.ts"
   },
   "keywords": [],
