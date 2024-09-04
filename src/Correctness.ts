@@ -7,6 +7,7 @@ export class Correctness extends Metric{
     }
 
     calculateScore(url: string, version: string): number {
+        console.log("Calculating Correctness");
         const start = performance.now();
 
         const end = performance.now();
