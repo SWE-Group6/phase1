@@ -6,11 +6,12 @@ export class Correctness extends Metric{
         super(url, version);
     }
 
-    calculateScore(url: string, version: string): number {
+    calculateScore(url: string, version: string): void {
+        console.log("Calculating Correctness");
         const start = performance.now();
 
         const end = performance.now();
         this.latency = end - start;
-        return 0;
+        this.score = 1;
     }
 }

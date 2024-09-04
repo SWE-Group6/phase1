@@ -7,8 +7,6 @@
 */
 
 import {Metric} from "./Metric";
-import axios from 'axios'; // in order to make requests to fetch data.
-// TODO: Look into dotenv to manage sensitive data such as tokens.
 
 // Talk to teamates about token.
 // const GITHUB_TOKEN = ...;
@@ -79,6 +77,7 @@ export class License extends Metric {
 
     // TODO: Flesh out how to calculate score.
     calculateScore(url: string, version: string): number {
+        console.log("Calculating License");
         const start = performance.now();
         // call members then calculate the final score.
         // const finalLicenseScore = (

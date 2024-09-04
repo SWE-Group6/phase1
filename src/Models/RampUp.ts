@@ -20,6 +20,7 @@ export class RampUp extends Metric {
         super(url, version);
     }
 
+<<<<<<< HEAD:src/RampUp.ts
     // PURPOSE: fetch a repo's README file. 
     // EXPECTED OUTPUT: return an object containing the content of the README
     // for GPT to analyze.
@@ -59,9 +60,13 @@ export class RampUp extends Metric {
 
     calculateScore(url: string, version: string): number {
         // probably just call the other methods 
+=======
+    calculateScore(url: string, version: string): void {
+        console.log("Calculating RampUp");
+>>>>>>> main:src/Models/RampUp.ts
         const start = performance.now();
         const end = performance.now();
         this.latency = end - start;
-        return 0;
+        this.score = 5;
     }
 }

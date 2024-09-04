@@ -18,6 +18,10 @@ export abstract class Metric {
     getLatency(): number {
         return this.latency;
     }
+<<<<<<< HEAD:src/Metric.ts
 
     abstract calculateScore(url: string, version: string): number;
+=======
+    abstract calculateScore(url: string, version: string): void;
+>>>>>>> main:src/Models/Metric.ts
 }
