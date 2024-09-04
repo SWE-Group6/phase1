@@ -6,6 +6,7 @@ export class BusFactor extends Metric {
     }
 
     calculateScore(url: string, version: string): number {
+        console.log("Calculating BusFactor");
         const start = performance.now();
 
         const end = performance.now();
