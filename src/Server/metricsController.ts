@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Package } from './Package';
+import { Package } from '../Models/Package';
 
 export const getMetrics = (req: Request, res: Response): void => {
     const { url, version } = req.query;
