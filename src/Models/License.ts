@@ -76,7 +76,7 @@ export class License extends Metric {
         });
     }
 
-    async fetchLicense(owner: string, repo: string, path: string): Promise<void> {
+    async fetchLicense(owner: string, repo: string, path: string): Promise<string | null> {
         try {
             // call the method to get the file
             const licenseData = await this.getLicenseFile(owner, repo, path);
@@ -86,14 +86,19 @@ export class License extends Metric {
 
                 const licenseType = this.identifyLicense(decodedLicense);
 
+                // return the license type regardless if it exists or not.
                 if (licenseType) {
                     console.log(`License type is: ${licenseType}`);
+                    return licenseType; 
                 } else {
                     console.log('Could not identify the license type');
+                    return null;
                 }
             }
+            return null;
         } catch (error) {
             console.error('Error fetching info: ', error);
+            return null;
         }
     }
 
