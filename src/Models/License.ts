@@ -7,7 +7,7 @@
 */
 
 import {Metric} from "./Metric";
-import https from 'https';
+import * as https from 'https';
 
 // Talk to teamates about token.
 // const GITHUB_TOKEN = ...;
@@ -23,7 +23,7 @@ export class License extends Metric {
     // PURPOSE: fetch a repo's license using built in GET method.
     // EXPECTED OUTPUT: return an object containing the content of the license.
     // PARAMTERS: owner: string, repo: string
-    function getLicenseFile(owner: string, repo: string): Promise<any> {
+    getLicenseFile(owner: string, repo: string): Promise<any> {
         // configuration needed to access the GitHub API.
         // found through: https://docs.github.com/en/rest/using-the-rest-api/getting-started-with-the-rest-api?apiVersion=2022-11-28#http-method
         const options = {
@@ -75,10 +75,10 @@ export class License extends Metric {
         });
     }
 
-    async function fetchLicense(owner: string, repo: string): Promise<void> {
+    async fetchLicense(owner: string, repo: string): Promise<void> {
         try {
             // call the method to get the file
-            const licenseData = await getLicenseFile(owner, repo);
+            const licenseData = await this.getLicenseFile(owner, repo);
             console.log('License info: ', licenseData.license);
         } catch (error) {
             console.error('Error fetching info: ', error);
@@ -89,7 +89,7 @@ export class License extends Metric {
     // what is found.
     // EXPECTED OUTPUT: number
     // PARAMETERS: content of license: string
-    function evaluateLicense(licenseContent: string) { licenseCompatibilityScore: number; documentationCompatibilityScore: number } {
+    evaluateLicense(licenseContent: string) { licenseCompatibilityScore: number; documentationCompatibilityScore: number } {
         // if what was fetched came back as null then it gets a zero
         // automatically 
         if (!licenseContent) {
@@ -113,13 +113,12 @@ export class License extends Metric {
     }
 */
     // TODO: Flesh out how to calculate score.
-    calculateScore(url: string, version: string): number {
+    calculateScore(url: string, version: string): void {
         console.log("Calculating License");
         const start = performance.now();
         // call members then calculate the final score.
         // const finalLicenseScore = (
         const end = performance.now()
         this.latency = end - start;
-        return 0;
     }
 }
