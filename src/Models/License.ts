@@ -19,33 +19,59 @@ export class License extends Metric {
         super(url, version);
     }
     
-    // PURPOSE: fetch a repo's license.
+    // PURPOSE: fetch a repo's license using built in GET method.
     // EXPECTED OUTPUT: return an object containing the content of the license.
-    // PARAMTERS: 1. owner of repo: string. 2: repo url: string
-    async function getRepoFiles(owner: string, repo: url) {
+    // PARAMTERS: owner: string, repo: string
+    function getLicenseFile(owner: string, repo: string): Promise<any> {
+        // configuration needed to access the GitHub API.
+        // found through: https://docs.github.com/en/rest/using-the-rest-api/getting-started-with-the-rest-api?apiVersion=2022-11-28#http-method
+        const options = {
+            hostname: 'api.github.com',
+            path: `/repos/${owner}/${repo}/license`, // go straight to the license.
+            method: 'GET',
+            headers: {
+                'User-Agent': 'node.js', // GitHub requires this for requests.
+                'Accept': 'application/vnd.github.v3+json', // request data from v3 of GitHub's API as well as it being in JSON format.
+            }
+        };
+
         // create header to provide authentication to GitHub API. 
         // const headers = { Authorization: `Bearer ${GITHUB_TOKEN` };
+        
+        // removed old code using axios package
+        // Promise documentation found through: https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Implementing_a_promise-based_API
+        return new Promise((resolve, reject) => {
+            https.get(options, (response) => {
+                // store the chunks of data from the server to be processed
+                // below.
+                let data = '';
 
-        try {
-            // see if there is a README file included in the given package by
-            // sending a GET request. GitHub responses are in json format,
-            // ensure correctly handling data.
-            const licenseResponse = await axios.get(`https://api.github.com/repos/${owner}/${repo}/license`, { headers, responseType: 'json' });
+                response.on('data', (chunk) => {
+                    data += chunk;
+                });
 
-            // decode the base64 data gotten from the request to binary form,
-            // then convert that into a string representation.
-            // axios schema for response to a request 
-            const licenseContent = Buffer.from(licenseResponse.data.content, 'base64').toString('utf-8');
+                // begin data processing 
+                response.on('end', () => {
+                    try {
+                        const parsedData = JSON.parse(data);
 
-            // if there is content in the README, return said content.
-            return { license: licenseContent };
-
-        } catch (error) {
-            // if it doesn't exist or if there's an error then return a null
-            // object.
-            console.error('Error in fetching repo file: ', error);
-            return { license: licenseContent };
-        }
+                        // if successful, return the data, resolving the
+                        // promise. otherwise, return errors.
+                        if (response.statusCode !== 200) {
+                            reject(new Error(`Something went wrong! ${parsedData.message}`));
+                        } else {
+                            resolve(parsedData);
+                        }
+                    } catch (error) {
+                        // catch any errors while handling JSON parsing
+                        reject(new Error(`Couldn't parse the data: ${error.message}`));
+                    }
+                });
+            }).on('error', (err) => {
+                // handle the request errors.
+                reject(new Error(`Request error: ${err.message}`));
+            });
+        });
     }
 
     // PURPOSE: look for valid license credentials and assign a score based on
