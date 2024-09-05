@@ -143,19 +143,23 @@ export class License extends Metric {
         const licenseType = await this.fetchLicense(owner, repo, path); 
         
         // based on the outline given from the description.
-        let tempScore = 0.0;
+        // edited variable name as it is only one part of the calculation
+        let licenseCompatibility = 0.0;
         if (licenseType === 'GNU Lesser General Public License (LGPL)' || licenseType === 'MIT License' || licenseType === 'BSD License') {
-            tempScore = 1.0; // Full compatibiliy gets full marks.
+            licenseCompatibility = 1.0; // Full compatibiliy gets full marks.
         } else if (licenseType === 'Apache License') {
-            tempScore = 0.5; // Partial compatibility gets half marks. 
+            licenseCompatibility = 0.5; // Partial compatibility gets half marks. 
         } else if (licenseType === 'GNU General Public License (GPL)') {
-            tempScore = 0.2; // Not very compatibile.
+            licenseCompatibility = 0.2; // Not very compatibile.
         } else {
-            tempScore = 0.0;
+            licenseCompatibility = 0.0;
         }
 
+        const compScore = 0.6;
+        // const docScore = 0.4;
+
         // finally, normalize the score with the given weight.
-        const finalScore = tempScore * this.weight;
+        const finalScore = this.weight * (compScore * licenseCompatibility); // * (docScore * licDoc);
 
         const end = performance.now()
         this.latency = end - start;
