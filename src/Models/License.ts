@@ -7,6 +7,7 @@
 */
 
 import {Metric} from "./Metric";
+import https from 'https';
 
 // Talk to teamates about token.
 // const GITHUB_TOKEN = ...;
