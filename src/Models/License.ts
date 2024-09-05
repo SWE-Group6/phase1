@@ -30,7 +30,7 @@ export class License extends Metric {
             path: `/repos/${owner}/${repo}/license`, // go straight to the license.
             method: 'GET',
             headers: {
-                'User-Agent': 'node.js', // GitHub requires this for requests.
+                'User-Agent': 'node.js', // GitHub requires this for requests. Without it, request rejected automatically!
                 'Accept': 'application/vnd.github.v3+json', // request data from v3 of GitHub's API as well as it being in JSON format.
             }
         };
@@ -74,6 +74,16 @@ export class License extends Metric {
         });
     }
 
+    async function fetchLicense(owner: string, repo: string): Promise<void> {
+        try {
+            // call the method to get the file
+            const licenseData = await getLicenseFile(owner, repo);
+            console.log('License info: ', licenseData.license);
+        } catch (error) {
+            console.error('Error fetching info: ', error);
+        }
+    }
+/*
     // PURPOSE: look for valid license credentials and assign a score based on
     // what is found.
     // EXPECTED OUTPUT: number
@@ -100,7 +110,7 @@ export class License extends Metric {
         documentationScore = 1.0; 
         return { licenseCompatibilityScore: compatibilityScore, documentationCompatibilityScore: documentationScore };
     }
-
+*/
     // TODO: Flesh out how to calculate score.
     calculateScore(url: string, version: string): number {
         console.log("Calculating License");
