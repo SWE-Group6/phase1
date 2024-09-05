@@ -112,6 +112,8 @@ export class License extends Metric {
             return 'MIT License';
         } else if (sanitizeContent.includes('gnu general public license') || sanitizeContent.includes('gpl')) {
             return 'GNU General Public License (GPL)';
+        } else if (sanitizeContent.includes('gnu lesser general public license') || sanitizeContent.includes('lgpl')) {
+            return 'GNU Lesser General Public License (LGPL)';
         } else if (sanitizeContent.includes('apache license')) {
             return 'Apache License';
         } else if (sanitizeContent.includes('mozilla public license')) {
@@ -123,15 +125,40 @@ export class License extends Metric {
         }
     }
 
-    // TODO: Flesh out how to calculate score.
+    // PURPOSE: give a repo a score based on type of license they have.
+    // EXPECTED OUTPUT: void
+    // PARAMETERS: url: string; version: string
     // TODO: some repos have different ways of storing LICENSE files, need to
     // account for all possible ways?
-    calculateScore(url: string, version: string): void {
+    async calculateScore(url: string, version: string): Promise<void> {
         console.log("Calculating License");
         const start = performance.now();
-        // call members then calculate the final score.
-        // const finalLicenseScore = (
+
+        // TODO: breakdown given url pieces to pass to member, especially for
+        // path.
+        const owner = ''; 
+        const repo = '';
+        const path = '';
+
+        const licenseType = await this.fetchLicense(owner, repo, path); 
+        
+        // based on the outline given from the description.
+        let tempScore = 0.0;
+        if (licenseType === 'GNU Lesser General Public License (LGPL)' || licenseType === 'MIT License' || licenseType === 'BSD License') {
+            tempScore = 1.0; // Full compatibiliy gets full marks.
+        } else if (licenseType === 'Apache License') {
+            tempScore = 0.5; // Partial compatibility gets half marks. 
+        } else if (licenseType === 'GNU General Public License (GPL)') {
+            tempScore = 0.2; // Not very compatibile.
+        } else {
+            tempScore = 0.0;
+        }
+
+        // finally, normalize the score with the given weight.
+        const finalScore = tempScore * this.weight;
+
         const end = performance.now()
         this.latency = end - start;
+        this.score = finalScore;
     }
 }
