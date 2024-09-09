@@ -10,6 +10,7 @@
 import {Metric} from "./Metric";
 import * as https from 'https';
 // import * as dotenv from 'dotenv';
+// TODO: import openai modules
 
 // ask team mates about how to load tokens
 // dotenv.config();
@@ -185,7 +186,7 @@ export class License extends Metric {
             model: 'gpt-3.5-turbo',
             messages: [
                 { role: "system", content: "You are an expert in assessing software licenses." },
-                { role: "user", content: "Here is the LICENSE content: "${license}".\nHere is the README content: "${readme}".\nEvaluate if the license is mentioned clearly in both files and grade based on the following scale: 1.0: License is well-documented in both README and a LICENSE file. 0.5: License is only mentioned in one place. 0.0: License is missing or unclear."
+                { role: "user", content: `Here is the LICENSE content: "${license}".\nHere is the README content: "${readme}".\nEvaluate if the license is mentioned clearly in both files and grade based on the following scale: 1.0: License is well-documented in both README and a LICENSE file. 0.5: License is only mentioned in one place. 0.0: License is missing or unclear.` },
             ],
         });
 
@@ -220,10 +221,18 @@ export class License extends Metric {
         const compScore = 0.6;
         const docScore = 0.4;
 
+        // load license and readme
+        // I can probably make it doesn't make multiple GET requests, but
+        // later.
+        const licenseFile = await this.getRepoFile(owner, repo, path);
+        const readmeFile = await this.getRepoFile(owner, repo, path); 
+
         const licenseRating = await this.rateLicense(owner, repo, path); 
+        // In my test file, GPT was saying I made too many requests. 
+        const documentRating = await this.evaluateDocumentation(licenseFile, readmeFile);
         
         // finally, normalize the score with the given weight.
-        // const finalScore = this.weight * (compScore * licenseRating); // * (docScore * licDoc);
+        const finalScore = this.weight * (compScore * licenseRating + docScore * documentRating);
 
         const end = performance.now()
         this.latency = end - start;
