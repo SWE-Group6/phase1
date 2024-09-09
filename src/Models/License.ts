@@ -112,6 +112,9 @@ export class License extends Metric {
         }
     }
 
+    // TODO: identifyLicense and rateLicense are similar enough where we can
+    // identify and rate the license in one step. However, I broke it down to
+    // the smallest components, thought?
     // PURPOSE: classify license based on given input
     // EXPECTED OUTPUT: string or null
     // PARAMETERS: content of license: string
@@ -138,9 +141,24 @@ export class License extends Metric {
     // PURPOSE: rate a packages' license based on conditions discussed as a
     // group.
     // EXPECTED OUTPUT: number (float).
-    // PARAMTERS:
-    rateLicense(): number {
+    // PARAMTERS: owner: string, repo: string, path: string.
+    async rateLicense(owner: string, repo: string, path: string): number {
+        const getContent = await this.getRepoFile(owner, repo, url);
+        const licenseType = this.identifyLicense(getContent); 
 
+        let compatibilityScore: number = 0.0;
+        
+        if (licenseType === 'GNU Lesser General Public License (LGPL)' || licenseType === 'MIT License' || licenseType === 'BSD License') {
+            licenseCompatibility = 1.0; // Full compatibiliy gets full marks.
+        } else if (licenseType === 'Apache License') {
+            licenseCompatibility = 0.5; // Partial compatibility gets half marks. 
+        } else if (licenseType === 'GNU General Public License (GPL)') {
+            licenseCompatibility = 0.2; // Not very compatibile.
+        } else {
+            licenseCompatibility = 0.0;
+        }
+
+        return compatibilityScore;
     }
 
     // PURPOSE: give a repo a score based on type of license they have.
@@ -158,24 +176,11 @@ export class License extends Metric {
         const repo = '';
         const path = '';
 
-        const licenseType = await this.fetchLicense(owner, repo, path); 
-        
-        // based on the outline given from the description.
-        // edited variable name as it is only one part of the calculation
-        let licenseCompatibility = 0.0;
-        if (licenseType === 'GNU Lesser General Public License (LGPL)' || licenseType === 'MIT License' || licenseType === 'BSD License') {
-            licenseCompatibility = 1.0; // Full compatibiliy gets full marks.
-        } else if (licenseType === 'Apache License') {
-            licenseCompatibility = 0.5; // Partial compatibility gets half marks. 
-        } else if (licenseType === 'GNU General Public License (GPL)') {
-            licenseCompatibility = 0.2; // Not very compatibile.
-        } else {
-            licenseCompatibility = 0.0;
-        }
-
         const compScore = 0.6;
-        // const docScore = 0.4;
+        const docScore = 0.4;
 
+        const licenseType = await this.rateLicense(owner, repo, path); 
+        
         // finally, normalize the score with the given weight.
         const finalScore = this.weight * (compScore * licenseCompatibility); // * (docScore * licDoc);
 
