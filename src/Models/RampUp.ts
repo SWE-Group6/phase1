@@ -33,7 +33,7 @@ export class RampUp extends Metric {
     // EXPECTED OUTPUT: return an object containing the content of the README
     // for GPT to analyze.
     // PARAMTERS: 1. owner of repo: string; 2. repo url: string.
-    getRepoFile(owner: string, repo: string) {
+    getRepoFile(owner: string, repo: string, path: string): Promise<any> {
         const options = {
             hostname: 'api.github.com',
             path: `/repos/${owner}/${repo}/${path}`,
@@ -108,8 +108,8 @@ export class RampUp extends Metric {
     // any error occurs, give -1.
     // EXPECTED OUTPUT: number between 0 and 1.
     // PARAMETERS: content of readme: string.
-    async evaluateREAMDE(content: string): Promise<number> {
-        const openai = new OpenAIAi({
+    async evaluateREADME(content: string): Promise<number> {
+        const openai = new OpenAIApi({
         // make sure to change this after merging branches.
             apiKey: `${OPENAI_API_TOKEN}`,
         });
@@ -128,7 +128,7 @@ export class RampUp extends Metric {
 
             if (assistantReply) {
                 try {
-                    const parsedResponse = JSON.parse(assisstantReply); // because prompt asked for JSON response, need to parse.
+                    const parsedResponse = JSON.parse(assistantReply); // because prompt asked for JSON response, need to parse.
                     const rampupScore = parsedResponse.ramp_up_score;
                     return rampupScore;
                 } catch (error) {
@@ -149,7 +149,7 @@ export class RampUp extends Metric {
         }
     }
 
-    calculateScore(url: string, version: string): void {
+    async calculateScore(url: string, version: string): Promise<void> {
         const owner = '';
         const repo = '';
         const path = '';
