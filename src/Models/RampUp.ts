@@ -14,6 +14,7 @@
 
 import {Metric} from "./Metric";
 import * as https from 'https';
+// import openai
 
 // TODO: Look into another package to manage sensitive data such as tokens.
 
@@ -102,12 +103,67 @@ export class RampUp extends Metric {
         }
     }
 
-    
+    // PURPOSE: have ChatGPT analyze the content of a README file, then grade
+    // it based on the given prompt from 0 to 1. Per instructor guidelines, if
+    // any error occurs, give -1.
+    // EXPECTED OUTPUT: number between 0 and 1.
+    // PARAMETERS: content of readme: string.
+    async evaluateREAMDE(content: string): Promise<number> {
+        const openai = new OpenAIAi({
+        // make sure to change this after merging branches.
+            apiKey: `${OPENAI_API_TOKEN}`,
+        });
+
+        try {
+            const response = await openai.chat.completions.create({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    { role: "system", content: "You are an expert in evaluating README files." },
+                    { role: "user", content: `Here is the readme file: "${content}".\nI want to calculate the rampup score, which means how easy it is for a developer to get started with this package.\nAnalyze the following readme and give a score for the package between 0 and 1. Give me the score only in JSON format with the key as ramp_up_score and the value to be the score you decide.\nIf a readme doesn't exist, the score is 0.` },
+                ],
+                // add token and temperature.
+            });
+
+            const assistantReply = response.choices[0]?.message?.content;
+
+            if (assistantReply) {
+                try {
+                    const parsedResponse = JSON.parse(assisstantReply); // because prompt asked for JSON response, need to parse.
+                    const rampupScore = parsedResponse.ramp_up_score;
+                    return rampupScore;
+                } catch (error) {
+                    if (error instanceof Error) {
+                        console.error('failed to parse data as JSON', error);
+                    } else {
+                        console.error('an unknown error occured');
+                    }
+                    return -1;
+                }
+            } else {
+                console.error('no valid response from API');
+                return -1;
+            }
+        } catch (error) {
+            console.error('error making request to OpenAI API', error);
+            return -1;
+        }
+    }
+
     calculateScore(url: string, version: string): void {
-        console.log("Calculating RampUp");
+        const owner = '';
+        const repo = '';
+        const path = '';
+
         const start = performance.now();
+            
+        // get the decoded readme file, pass it to the AI
+        const readmeContent = await this.decodedContent(owner, repo, path);
+        const score = await this.evaluateREADME(readmeContent);
+
+        const finalScore = this.weight * score; 
+
         const end = performance.now();
         this.latency = end - start;
-        this.score = 5;
+        this.score = finalScore;
     }
 }
