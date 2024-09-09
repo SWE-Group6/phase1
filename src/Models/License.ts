@@ -15,10 +15,11 @@ import * as https from 'https';
 // dotenv.config();
 // Talk to teamates about token.
 // const GITHUB_TOKEN = ...;
+// const OPENAI_API_TOKEN = ...;
 
 export class License extends Metric {
     // arbitrary weight given to this metric.
-    private weight: number = 0.2;
+    public weight: number = 0.2;
 
     constructor(url: string, version: string) {
         super(url, version);
@@ -68,18 +69,22 @@ export class License extends Metric {
                             resolve(parsedData);
                         }
                     } catch (error) {
-                        // catch any errors while handling JSON parsing
-                        reject(new Error(`Couldn't parse the data: ${error.message}`));
+                        if (error instanceof Error) {
+                            // catch any errors while handling JSON parsing
+                            reject(new Error(`Couldn't parse the data: ${error.message}`));
+                        } else {
+                            console.error('An unknown error occured');
+                        }
                     }
                 });
             }).on('error', (err) => {
                 // handle the request errors.
-                reject(new Error(`Request error: ${err.message}`));
+                reject(new Error(`Request error:${err.message}`));
             });
         });
     }
 
-    // update: renamed to fetchFileContent for same reasons as getFile and it
+    // update: renamed to decodeContent for same reasons as getFile and it
     // will return the decoded file content.
     // PURPOSE: decode a file gotten from a GET request.
     // EXPECTED OUTPUT: content of file: string or null.
@@ -142,11 +147,12 @@ export class License extends Metric {
     // group.
     // EXPECTED OUTPUT: number (float).
     // PARAMTERS: owner: string, repo: string, path: string.
-    async rateLicense(owner: string, repo: string, path: string): number {
-        const getContent = await this.getRepoFile(owner, repo, url);
+    async rateLicense(owner: string, repo: string, path: string): Promise<number> {
+        // get the license file of a repo, identify it, then score it.
+        const getContent = await this.getRepoFile(owner, repo, path);
         const licenseType = this.identifyLicense(getContent); 
 
-        let compatibilityScore: number = 0.0;
+        let licenseCompatibility: number = 0.0;
         
         if (licenseType === 'GNU Lesser General Public License (LGPL)' || licenseType === 'MIT License' || licenseType === 'BSD License') {
             licenseCompatibility = 1.0; // Full compatibiliy gets full marks.
@@ -158,12 +164,47 @@ export class License extends Metric {
             licenseCompatibility = 0.0;
         }
 
-        return compatibilityScore;
+        return licenseCompatibility;
     }
 
+    // PURPOSE: fulfill part two of measuring a license file. Have ChatGPT
+    // analyze the content of both files, then return a value between 0 and 1.
+    // EXPECTED OUTPUT: number (float).
+    // PARAMETERS: license: string, readme: string.
+    async evaluateDocumentation(license: string, readme: string): Promise<number> {
+        // documentation for using API: 
+        // 1. https://platform.openai.com/docs/guides/chat-completions
+        // 2. https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models
+        // 3. https://www.youtube.com/watch?v=FPkgrLr0KBU
+        // 4. and of course, class slides from lectures. 
+        const openai = new OpenAIApi({
+            apiKey: `${OPENAI_API_TOKEN}`,
+        });
+
+        const response = await openai.chat.completions.create({ 
+            model: 'gpt-3.5-turbo',
+            messages: [
+                { role: "system", content: "You are an expert in assessing software licenses." },
+                { role: "user", content: "Here is the LICENSE content: "${license}".\nHere is the README content: "${readme}".\nEvaluate if the license is mentioned clearly in both files and grade based on the following scale: 1.0: License is well-documented in both README and a LICENSE file. 0.5: License is only mentioned in one place. 0.0: License is missing or unclear."
+            ],
+        });
+
+        // line "inspired" by the linked YouTube video.
+        const assistantReply = response.choices[0]?.message?.content.trim();
+
+        // assistantReply might be null, check here:
+        if (assistantReply) {
+            const score = parseFloat(assistantReply);
+            return score;
+        } else {
+            console.error('No valid response received from the assistant');
+            return 0;
+        }
+    }
+    
     // PURPOSE: give a repo a score based on type of license they have.
     // EXPECTED OUTPUT: void
-    // PARAMETERS: url: string; version: string
+    // PARAMETERS: url: string; version: string.
     // TODO: some repos have different ways of storing LICENSE files, need to
     // account for all possible ways?
     async calculateScore(url: string, version: string): Promise<void> {
@@ -179,10 +220,10 @@ export class License extends Metric {
         const compScore = 0.6;
         const docScore = 0.4;
 
-        const licenseType = await this.rateLicense(owner, repo, path); 
+        const licenseRating = await this.rateLicense(owner, repo, path); 
         
         // finally, normalize the score with the given weight.
-        const finalScore = this.weight * (compScore * licenseCompatibility); // * (docScore * licDoc);
+        // const finalScore = this.weight * (compScore * licenseRating); // * (docScore * licDoc);
 
         const end = performance.now()
         this.latency = end - start;
