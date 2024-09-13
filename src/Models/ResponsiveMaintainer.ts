@@ -2,8 +2,8 @@ import { Metric } from "./Metric";
 
 export class ResponsiveMaintainer extends Metric {
     public weight: number = 0.25;
-    constructor(url: string, version: string) {
-        super(url, version);
+    constructor(url: string) {
+        super(url);
     }
     calculateScore(): void {
         console.log("Calculating ResponsiveMaintainer");
@@ -11,7 +11,7 @@ export class ResponsiveMaintainer extends Metric {
 
         const end = performance.now();
         this.latency = end - start;
-        this.score = 10;
+        this.score = 0.10;
     }
 
 }

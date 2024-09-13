@@ -6,13 +6,11 @@ import { ResponsiveMaintainer } from "./ResponsiveMaintainer";
 
 export class Package {
     public url: string = "";
-    public version: string = "";
     private packageMetrics: AllMetrics;
 
-    constructor(url: string, version: string) {
+    constructor(url: string) {
         this.url = url;
-        this.version = version;
-        this.packageMetrics = new AllMetrics(url, version);
+        this.packageMetrics = new AllMetrics(url);
 
         this.packageMetrics.calculateNetScore();
 
@@ -22,20 +20,14 @@ export class Package {
         // return a json object of all the values of the metrics
         console.log("Getting Metrics");
         return {
-            url: this.url,
-            NetScore: this.packageMetrics.getNetScore(),
-            NetScoreLatency: this.packageMetrics.getNetScoreLatency(),
+            URL: this.url,
+            NET_SCORE: this.packageMetrics.getNetScore(),
             //add other metrics
-            BusFactor: this.packageMetrics.metrics[0].getScore(),
-            BusFactorLatency: this.packageMetrics.metrics[0].getLatency(),
-            Correctness: this.packageMetrics.metrics[1].getScore(),
-            CorrectnessLatency: this.packageMetrics.metrics[1].getLatency(),
-            ResponsiveMaintainer: this.packageMetrics.metrics[2].getScore(),
-            ResponsiveMaintainerLatency: this.packageMetrics.metrics[2].getLatency(),
-            RampUp: this.packageMetrics.metrics[3].getScore(),
-            RampUpLatency: this.packageMetrics.metrics[3].getLatency(),
-            License: this.packageMetrics.metrics[4].getScore(),
-            LicenseLatency: this.packageMetrics.metrics[4].getLatency(),
+            BUS_FACTOR_SCORE: this.packageMetrics.metrics[0].getScore(),
+            CORRECTNESS_SCORE: this.packageMetrics.metrics[1].getScore(),
+            RESPONSIVE_MAINTAINER_SCORE: this.packageMetrics.metrics[2].getScore(),
+            RAMP_UP_SCORE: this.packageMetrics.metrics[3].getScore(),
+            LICENSE_SCORE: this.packageMetrics.metrics[4].getScore()
         };
     }
 }
