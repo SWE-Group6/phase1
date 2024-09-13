@@ -12,15 +12,15 @@ export class AllMetrics {
     private netScore: number = 0;
     private netScoreLatency: number = 0;
 
-    constructor(url: string, version: string) {
-        this.metrics.push(new BusFactor(url, version));
-        this.metrics.push(new Correctness(url, version));
-        this.metrics.push(new ResponsiveMaintainer(url, version));
-        this.metrics.push(new RampUp(url, version));
-        this.metrics.push(new License(url, version));
+    constructor(url: string) {
+        this.metrics.push(new BusFactor(url));
+        this.metrics.push(new Correctness(url));
+        this.metrics.push(new ResponsiveMaintainer(url));
+        this.metrics.push(new RampUp(url));
+        this.metrics.push(new License(url));
 
         this.metrics.forEach(metric => {
-            metric.calculateScore(url, version);
+            metric.calculateScore();
         });
     }
     

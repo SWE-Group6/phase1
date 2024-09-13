@@ -2,11 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Metric = void 0;
 class Metric {
-    constructor(url, version) {
+    constructor(url) {
         this.score = 0;
         this.latency = 0;
         this.url = url;
-        this.version = version;
     }
     getScore() {
         return this.score;

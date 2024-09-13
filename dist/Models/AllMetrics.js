@@ -7,18 +7,18 @@ const ResponsiveMaintainer_1 = require("./ResponsiveMaintainer");
 const RampUp_1 = require("./RampUp");
 const License_1 = require("./License");
 class AllMetrics {
-    constructor(url, version) {
+    constructor(url) {
         // make an array of all metrics
         this.metrics = [];
         this.netScore = 0;
         this.netScoreLatency = 0;
-        this.metrics.push(new BusFactor_1.BusFactor(url, version));
-        this.metrics.push(new Correctness_1.Correctness(url, version));
-        this.metrics.push(new ResponsiveMaintainer_1.ResponsiveMaintainer(url, version));
-        this.metrics.push(new RampUp_1.RampUp(url, version));
-        this.metrics.push(new License_1.License(url, version));
+        this.metrics.push(new BusFactor_1.BusFactor(url));
+        this.metrics.push(new Correctness_1.Correctness(url));
+        this.metrics.push(new ResponsiveMaintainer_1.ResponsiveMaintainer(url));
+        this.metrics.push(new RampUp_1.RampUp(url));
+        this.metrics.push(new License_1.License(url));
         this.metrics.forEach(metric => {
-            metric.calculateScore(url, version);
+            metric.calculateScore();
         });
     }
     calculateNetScore() {
