@@ -16,7 +16,5 @@ export const getMetrics = (req: Request, res: Response): void => {
 
     const pkg = new Package(url);
     const metrics = pkg.getMetrics();
-
-    // return the JSON
-    res.send(metrics);
+    res.send(JSON.stringify(metrics));
 };

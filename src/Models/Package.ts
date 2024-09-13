@@ -21,13 +21,19 @@ export class Package {
         console.log("Getting Metrics");
         return {
             URL: this.url,
-            NET_SCORE: this.packageMetrics.getNetScore(),
+            NetScore: this.packageMetrics.getNetScore(),
+            NetScore_Latency: this.packageMetrics.getNetScoreLatency(),
             //add other metrics
-            BUS_FACTOR_SCORE: this.packageMetrics.metrics[0].getScore(),
-            CORRECTNESS_SCORE: this.packageMetrics.metrics[1].getScore(),
-            RESPONSIVE_MAINTAINER_SCORE: this.packageMetrics.metrics[2].getScore(),
-            RAMP_UP_SCORE: this.packageMetrics.metrics[3].getScore(),
-            LICENSE_SCORE: this.packageMetrics.metrics[4].getScore()
+            BusFactor: this.packageMetrics.metrics[0].getScore(),
+            BusFactor_Latency: this.packageMetrics.metrics[0].getLatency(),
+            Correctness: this.packageMetrics.metrics[1].getScore(),
+            Correctness_Latency: this.packageMetrics.metrics[1].getLatency(),
+            ResponsiveMaintainer: this.packageMetrics.metrics[2].getScore(),
+            ResponsiveMaintainer_Latency: this.packageMetrics.metrics[2].getLatency(),
+            RampUp: this.packageMetrics.metrics[3].getScore(),
+            RampUp_Latency: this.packageMetrics.metrics[3].getLatency(),
+            License: this.packageMetrics.metrics[4].getScore(),
+            License_Latency: this.packageMetrics.metrics[4].getLatency()
         };
     }
 }
