@@ -2,16 +2,16 @@ import {Metric} from "./Metric";
 
 export class Correctness extends Metric{
     public weight: number = 0.15;
-    constructor(url: string, version: string) {
-        super(url, version);
+    constructor(url: string) {
+        super(url);
     }
 
-    calculateScore(url: string, version: string): void {
+    calculateScore(): void {
         console.log("Calculating Correctness");
         const start = performance.now();
 
         const end = performance.now();
         this.latency = end - start;
-        this.score = 1;
+        this.score = 0.1;
     }
 }
