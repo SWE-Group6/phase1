@@ -5,7 +5,16 @@ export class ResponsiveMaintainer extends Metric {
     constructor(url: string) {
         super(url);
     }
-    calculateScore(): void {
+    calculateScoreGithub(): void {
+        console.log("Calculating ResponsiveMaintainer");
+        const start = performance.now();
+
+        const end = performance.now();
+        this.latency = end - start;
+        this.score = 0.10;
+    }
+
+    calculateScoreNPM(): void {
         console.log("Calculating ResponsiveMaintainer");
         const start = performance.now();
 

@@ -16,5 +16,6 @@ export abstract class Metric {
     getLatency(): number {
         return this.latency;
     }
-    abstract calculateScore(): void;
+    abstract calculateScoreGithub(): void;
+    abstract calculateScoreNPM(): void;
 }

@@ -19,9 +19,22 @@ export class AllMetrics {
         this.metrics.push(new RampUp(url));
         this.metrics.push(new License(url));
 
-        this.metrics.forEach(metric => {
-            metric.calculateScore();
-        });
+        //check if url is npm url or github url
+        if (this.checkUrlType(url) === 'npm') {
+            this.metrics.forEach(metric => {
+                metric.calculateScoreNPM();
+            });
+        }
+        else if(this.checkUrlType(url) === 'github') {
+            this.metrics.forEach(metric => {
+                metric.calculateScoreGithub();
+            });
+        }
+        else {
+            //throw error
+            throw new Error('Invalid URL');
+        }
+        
     }
     
     public calculateNetScore(): number {
@@ -47,5 +60,18 @@ export class AllMetrics {
     public getNetScore(): number {
         return this.netScore;
     }
+
+    public checkUrlType(url: string): 'npm' | 'github' | 'unknown' {
+        const npmRegex = /^(https?:\/\/)?(www\.)?npmjs\.com/i;
+        const githubRegex = /^(https?:\/\/)?(www\.)?github\.com/i;
+      
+        if (npmRegex.test(url)) {
+          return 'npm';
+        } else if (githubRegex.test(url)) {
+          return 'github';
+        } else {
+          return 'unknown';
+        }
+      }
 
 }

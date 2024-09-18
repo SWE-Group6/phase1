@@ -5,12 +5,15 @@ export class BusFactor extends Metric {
         super(url);
     }
 
-    calculateScore(): void {
+    calculateScoreGithub(): void {
         console.log("Calculating BusFactor");
         const start = performance.now();
 
         const end = performance.now();
         this.latency = end - start;
         this.score = 0.16;
+    }
+    calculateScoreNPM(): void {
+        console.log("Calculating BusFactor for NPM");
     }
 }
