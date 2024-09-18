@@ -4,13 +4,13 @@ import { ResponsiveMaintainer } from '../Models/ResponsiveMaintainer';
 describe('ResponsiveMaintainer', () => {
   it('should calculate the ResponsiveMaintainer score', () => {
     const responsiveMaintainer = new ResponsiveMaintainer('http://example.com');
-    responsiveMaintainer.calculateScore();
+    responsiveMaintainer.calculateScoreGithub();
     expect(responsiveMaintainer.getScore()).to.equal(0.10);
   });
 
   it('should calculate the latency for ResponsiveMaintainer', () => {
     const responsiveMaintainer = new ResponsiveMaintainer('http://example.com');
-    responsiveMaintainer.calculateScore();
+    responsiveMaintainer.calculateScoreGithub();
     expect(responsiveMaintainer.getLatency()).to.be.a('number');
   });
 });

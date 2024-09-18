@@ -4,13 +4,13 @@ import { RampUp } from '../Models/RampUp';
 describe('RampUp', () => {
   it('should calculate the RampUp score', () => {
     const rampUp = new RampUp('http://example.com');
-    rampUp.calculateScore();
+    rampUp.calculateScoreGithub();
     expect(rampUp.getScore()).to.equal(0.5);
   });
 
   it('should calculate the latency for RampUp', () => {
     const rampUp = new RampUp('http://example.com');
-    rampUp.calculateScore();
+    rampUp.calculateScoreGithub();
     expect(rampUp.getLatency()).to.be.a('number');
   });
 });
