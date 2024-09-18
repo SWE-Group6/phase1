@@ -6,7 +6,16 @@ export class Correctness extends Metric{
         super(url);
     }
 
-    calculateScore(): void {
+    calculateScoreGithub(): void {
+        console.log("Calculating Correctness");
+        const start = performance.now();
+
+        const end = performance.now();
+        this.latency = end - start;
+        this.score = 0.1;
+    }
+
+    calculateScoreNPM(): void {
         console.log("Calculating Correctness");
         const start = performance.now();
 
