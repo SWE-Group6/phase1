@@ -21,11 +21,50 @@ import * as https from 'https';
 export class License extends Metric {
     // arbitrary weight given to this metric.
     public weight: number = 0.2;
+    public owner: string;
+    public repo: string;
 
-    constructor(url: string, version: string) {
-        super(url, version);
+    constructor(url: string) {
+        super(url);
+
+        // the professor may give us a github link or an npm link, based on
+        // this, we have to initialize the owner and repo variables accordingly
+        if(url.includes('github.com')) {
+            const [owner, repo] = this.parseGitHubURL(url);
+            this.owner = owner;
+            this.repo = repo;
+        } else if (url.includes(npmjs.com)) {
+            const githubURL = this.extractURL(url);
+            if (githubURL) {
+                const [owner, url] = this.parseGitHubURL(githubURL);
+                this.owner = owner;
+                this.repo = repo;
+            } else {
+                throw new Error("NPM package does not have github url");
+            }
+        } else {
+            throw new Error("unsupported url format");
+        }
     }
     
+    // PURPOSE: get the owner and repo name from the provided url in order to
+    // get license file later.
+    private parseGitHubURL(url: string): [string, string] {
+        // source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split
+        const parts = url.split('/');
+        // example: https://github.com/WordPress/WordPress
+        //                                3
+        const owner = parts[3];
+        const repo = parts[4].replace('.git', '');
+        return [owner, repo];
+    }
+
+    // sometimes, the package might be given thru npm link. in that page, there
+    // usually is a repo linked as well. 
+    private extractURL(npmURL: string): Promise<string | null> { 
+
+    }
+
     // update: renamed to getRepoFile due to this method getting called when
     // retrieving both LICENSE and README files.
     // PURPOSE: fetch a repo's license using built in GET method.
@@ -212,12 +251,9 @@ export class License extends Metric {
         console.log("Calculating License");
         const start = performance.now();
 
-        // TODO: breakdown given url pieces to pass to member, especially for
-        // path.
-        const owner = ''; 
-        const repo = '';
-        const path = '';
-
+        // updated: broke down url so that 'owner', 'repo' gets taken care of
+        // in the constructor. Also added logic to determine what to do based
+        // on what link is given.
         const compScore = 0.6;
         const docScore = 0.4;
 
