@@ -4,13 +4,13 @@ import { Correctness } from '../Models/Correctness';
 describe('Correctness', () => {
   it('should calculate the Correctness score', () => {
     const correctness = new Correctness('http://example.com');
-    correctness.calculateScore();
+    correctness.calculateScoreGithub();
     expect(correctness.getScore()).to.equal(0.1);
   });
 
   it('should calculate the latency for Correctness', () => {
     const correctness = new Correctness('http://example.com');
-    correctness.calculateScore();
+    correctness.calculateScoreGithub();
     expect(correctness.getLatency()).to.be.a('number');
   });
 });
