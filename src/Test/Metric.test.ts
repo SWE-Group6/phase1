@@ -5,7 +5,10 @@ describe('Metric', () => {
   it('should have a score and latency initialized to 0', () => {
     class TestMetric extends Metric {
       weight = 0.5;
-      calculateScore() {}
+      calculateScoreGithub(): void { console.log("Method not implemented."); }
+      calculateScoreNPM(): void {
+        console.log("Method not implemented.");
+      }
     }
     const metric = new TestMetric('http://example.com');
     expect(metric.getScore()).to.equal(0);
@@ -18,7 +21,8 @@ describe('Metric', () => {
   it('should be an instance of Metric', () => {
     class TestMetric extends Metric {
       weight = 0.5;
-      calculateScore() {}
+      calculateScoreGithub() {}
+      calculateScoreNPM() {}
     }
     const metric = new TestMetric('http://example.com');
     expect(metric).to.be.an.instanceOf(Metric);
