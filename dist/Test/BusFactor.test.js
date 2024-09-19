@@ -5,12 +5,12 @@ const BusFactor_1 = require("../Models/BusFactor");
 describe('BusFactor', () => {
     it('should calculate the BusFactor score', () => {
         const busFactor = new BusFactor_1.BusFactor('http://example.com');
-        busFactor.calculateScore();
+        busFactor.calculateScoreGithub();
         (0, chai_1.expect)(busFactor.getScore()).to.equal(0.16);
     });
     it('should calculate the latency for BusFactor', () => {
         const busFactor = new BusFactor_1.BusFactor('http://example.com');
-        busFactor.calculateScore();
+        busFactor.calculateScoreGithub();
         (0, chai_1.expect)(busFactor.getLatency()).to.be.a('number');
     });
 });
