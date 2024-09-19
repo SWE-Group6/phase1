@@ -7,7 +7,14 @@ class ResponsiveMaintainer extends Metric_1.Metric {
         super(url);
         this.weight = 0.25;
     }
-    calculateScore() {
+    calculateScoreGithub() {
+        console.log("Calculating ResponsiveMaintainer");
+        const start = performance.now();
+        const end = performance.now();
+        this.latency = end - start;
+        this.score = 0.10;
+    }
+    calculateScoreNPM() {
         console.log("Calculating ResponsiveMaintainer");
         const start = performance.now();
         const end = performance.now();

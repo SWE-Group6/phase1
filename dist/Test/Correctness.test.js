@@ -5,12 +5,12 @@ const Correctness_1 = require("../Models/Correctness");
 describe('Correctness', () => {
     it('should calculate the Correctness score', () => {
         const correctness = new Correctness_1.Correctness('http://example.com');
-        correctness.calculateScore();
+        correctness.calculateScoreGithub();
         (0, chai_1.expect)(correctness.getScore()).to.equal(0.1);
     });
     it('should calculate the latency for Correctness', () => {
         const correctness = new Correctness_1.Correctness('http://example.com');
-        correctness.calculateScore();
+        correctness.calculateScoreGithub();
         (0, chai_1.expect)(correctness.getLatency()).to.be.a('number');
     });
 });

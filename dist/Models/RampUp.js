@@ -7,7 +7,14 @@ class RampUp extends Metric_1.Metric {
         super(url);
         this.weight = 0.15;
     }
-    calculateScore() {
+    calculateScoreGithub() {
+        console.log("Calculating RampUp");
+        const start = performance.now();
+        const end = performance.now();
+        this.latency = end - start;
+        this.score = 0.5;
+    }
+    calculateScoreNPM() {
         console.log("Calculating RampUp");
         const start = performance.now();
         const end = performance.now();

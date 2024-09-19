@@ -7,7 +7,14 @@ class License extends Metric_1.Metric {
         super(url);
         this.weight = 0.2;
     }
-    calculateScore() {
+    calculateScoreGithub() {
+        console.log("Calculating License");
+        const start = performance.now();
+        const end = performance.now();
+        this.latency = end - start;
+        this.score = 0.2;
+    }
+    calculateScoreNPM() {
         console.log("Calculating License");
         const start = performance.now();
         const end = performance.now();

@@ -9,7 +9,10 @@ describe('Metric', () => {
                 super(...arguments);
                 this.weight = 0.5;
             }
-            calculateScore() { }
+            calculateScoreGithub() { console.log("Method not implemented."); }
+            calculateScoreNPM() {
+                console.log("Method not implemented.");
+            }
         }
         const metric = new TestMetric('http://example.com');
         (0, chai_1.expect)(metric.getScore()).to.equal(0);
@@ -24,7 +27,8 @@ describe('Metric', () => {
                 super(...arguments);
                 this.weight = 0.5;
             }
-            calculateScore() { }
+            calculateScoreGithub() { }
+            calculateScoreNPM() { }
         }
         const metric = new TestMetric('http://example.com');
         (0, chai_1.expect)(metric).to.be.an.instanceOf(Metric_1.Metric);

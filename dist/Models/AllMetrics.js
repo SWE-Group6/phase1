@@ -17,9 +17,17 @@ class AllMetrics {
         this.metrics.push(new ResponsiveMaintainer_1.ResponsiveMaintainer(url));
         this.metrics.push(new RampUp_1.RampUp(url));
         this.metrics.push(new License_1.License(url));
-        this.metrics.forEach(metric => {
-            metric.calculateScore();
-        });
+        //check if url is npm url or github url
+        if (this.checkUrlType(url) === 'npm') {
+            this.metrics.forEach(metric => {
+                metric.calculateScoreNPM();
+            });
+        }
+        else {
+            this.metrics.forEach(metric => {
+                metric.calculateScoreGithub();
+            });
+        }
     }
     calculateNetScore() {
         const start = performance.now();
@@ -39,6 +47,19 @@ class AllMetrics {
     }
     getNetScore() {
         return this.netScore;
+    }
+    checkUrlType(url) {
+        const npmRegex = /^(https?:\/\/)?(www\.)?npmjs\.com/i;
+        const githubRegex = /^(https?:\/\/)?(www\.)?github\.com/i;
+        if (npmRegex.test(url)) {
+            return 'npm';
+        }
+        else if (githubRegex.test(url)) {
+            return 'github';
+        }
+        else {
+            return 'unknown';
+        }
     }
 }
 exports.AllMetrics = AllMetrics;

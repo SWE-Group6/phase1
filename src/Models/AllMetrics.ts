@@ -25,14 +25,10 @@ export class AllMetrics {
                 metric.calculateScoreNPM();
             });
         }
-        else if(this.checkUrlType(url) === 'github') {
+        else {
             this.metrics.forEach(metric => {
                 metric.calculateScoreGithub();
             });
-        }
-        else {
-            //throw error
-            throw new Error('Invalid URL');
         }
         
     }

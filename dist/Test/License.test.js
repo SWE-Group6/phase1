@@ -5,13 +5,13 @@ const License_1 = require("../Models/License");
 describe('License', () => {
     it('should calculate the License score', () => {
         const license = new License_1.License('http://example.com');
-        license.calculateScore();
+        license.calculateScoreGithub();
         const score = license.getScore();
         (0, chai_1.expect)(score).to.equal(0.2);
     });
     it('should calculate the latency for License', () => {
         const license = new License_1.License('http://example.com');
-        license.calculateScore();
+        license.calculateScoreGithub();
         (0, chai_1.expect)(license.getLatency()).to.be.a('number');
     });
 });
