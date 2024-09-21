@@ -54,12 +54,75 @@ export class License extends Metric {
        }
     }
 
+    decodeFile(encodedContent: string): string {
+        const buffer = Buffer.from(encodedContent, 'base64');
+        return buffer.toString('utf-8'); // decoded content is now string
+    }
+
+    parseJSON(decodedContent: string): string | null {
+        try {
+            const packageJSON = JSON.parse(content);
+            if (packageJSON.license) {
+                return packageJSON.license;
+            }
+            return null;
+        } catch (error) {
+        // return null if the json file does not have a license field.
+            if (error instanceof Error) {
+                console.error('Error parsing package.json:', error);
+                this.score = -1;
+                return null;
+            }
+        }
+    }
+
+    parseFile(decodedContent: string): string | null {
+        const sanitizedContent = decodedContent.toLowerCase();
+        if (sanitizedContent.includes('mit')) {
+            return 'MIT';
+        } else if (sanitizedContent.includes('gpl')) {
+            return 'GPL';
+        } else if (sanitizedContent.includes('lgpl')) {
+            return 'LGPL';
+        } else if (sanitizedContent.includes('apache')) {
+            return 'APACHE';
+        } else if (sanitizedContent.includes('mozilla public license')) {
+            return 'MOZILLA';
+        } else if (sanitizedContent.includes('bsd')) {
+            return 'BSD';
+        }
+        // base case: no license was found in the license file. 
+        return null;
+    }
+
     async findLicense(owner: string, repo: string): Promise<string | null> {
         // many ways to store license files; to not take too long, here are the
         // most important ones I want to consider.
         const fileTypes = ['LICENSE', 'LICENSE.txt', 'LICENSE.md', 'package.json'];
+        
+        for (const files of fileTypes) {
+            const fileData = await this.getFile(owner, repo, file);
+            
+            // if the license was found, decode it and return immediately for
+            // identification.
+            if (fileData) {
+                const decodedContent = this.decodeFile(fileData.content);
 
+                if (file === 'package.json') {
+                    const licenseType = this.parseJSON(decodedContent);
+                    return licenseType;
+                } else {
+                    const licenseType = this.parseFile(decodedContent);
+                    return licenseType;
+                }
+            }
 
+            await this.delay(1000);
+        }
+
+        // if no license was found, set score to -1.
+        this.score = -1;
+        return null;
     }
 
     calculateScoreGithub(): void {
