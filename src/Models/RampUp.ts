@@ -7,6 +7,7 @@ export class RampUp extends Metric {
     private owner: string = '';
     private repo: string = '';
     private githubToken: string = '';
+    private openaiToken: string = '';
     private packageName: string = '';
 
     constructor(url: string) {
@@ -22,6 +23,7 @@ export class RampUp extends Metric {
             this.packageName = parts[4];
         }
         this.githubToken = process.env.GITHUB_TOKEN;
+        this.openaiToken = process.env.OPENAI_TOKEN;
     }
     
     private delay(ms: number): Promise<void> {
@@ -133,6 +135,50 @@ export class RampUp extends Metric {
     // GPT integration.
     async rateREADME(content: string): Promise<number> {
         return 1;
+        /*
+        const openai = new OpenAI({
+            apiKey: process.env.${this.openaiToken},
+        });
+
+        try {
+            const response = await openai.chat.completions.create({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    { role: "system", content: "You are an expert in evaluating readme files." }, 
+                    { role: "user", content: `Here is the readme file: "${content}".\nI want to calculate the ramp up score, which means how easy it is for a developer to get started with this package.\nAnalyze the following readme and give me a score for the package between 0 and 1. Give me only the score in JSON format with the key as ramp_up_score and the value to be the score you decide.\nIf a readme doesn't exist, the score is 0.` },
+                ],
+                temperature: 1,
+                max_tokens: 2048,
+            });
+
+            const assistantReply = response.choices[0].message.content;
+
+            if (assistantReply) {
+                try {
+                    const parsedResponse = JSON.parse(assistantReply);
+                    return parsedResponse.ramp_up_score;
+                } catch (error) {
+                    if (error instanceof Error) {
+                        console.error('Failed to parse data as JSON', error.message);
+                        return -1;
+                    } else {
+                        console.error('An unknown error occurred');
+                        return -1;
+                    }
+                }
+            } else {
+                console.error('Invalid response from API');
+                return -1;
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error('Error making request:', error.message);
+            } else {
+                console.error('An unknown error occurred');
+                return -1;
+            } 
+        }
+        */
     }
 
     async calculateScoreGithub(): Promise<void> {
@@ -156,6 +202,6 @@ export class RampUp extends Metric {
 
         const end = performance.now();
         this.latency = end - start;
-        this.score = 0.5;
+        this.score = readmeRating;
     }
 }
