@@ -24,9 +24,10 @@ export class License extends Metric {
             const parts = url.split('/');
             this.owner = parts[3];
             this.repo = parts[4];
-        } else if (url.includes('npmjs.com') {
+        } else if (url.includes('npmjs.com')) {
             // generic npmjs url is: https://npmjs.com/package/{packageName}
-            
+            const parts = url.split('/'); 
+            this.packageName = parts[4];
         }
 
         this.githubToken = process.env.GITHUB_TOKEN;
@@ -186,6 +187,33 @@ export class License extends Metric {
         return null;
     }
 
+    async getNPMData(): Promise<any> {
+        const apiURL = `https://registry.npmjs.org/${this.packageName}`; 
+
+        try {
+            const response = await axios.get(apiURL);
+            return response.data;
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error('Error fetching NPM metadata:', error.message);
+                return null;
+            } else {
+                console.error('An unknown error occured'); 
+                return null;
+            }
+        }
+    }
+
+    async findNPMLicense(): Promise<string | null> {
+        const metadata = await this.getNPMData();
+
+        if (metadata && metadata.license) {
+            const license = metadata.license; 
+            return license;
+        }
+        return null;
+    }
+
     rateLicense(licenseType: string): number {
         let licenseScore = -1;
         if (licenseType === 'MIT' || licenseType === 'LGPL' || licenseType === 'BSD') {
@@ -202,8 +230,8 @@ export class License extends Metric {
         console.log("Calculating License");
         const start = performance.now();
 
-        const compScore = 0.6;
-        const docScore = 0.4;
+        const compScore: number = 0.6;
+        const docScore: number = 0.4;
 
         // retrieve the license and score the license.
         const license = await this.findLicense(this.owner, this.repo);
@@ -218,15 +246,27 @@ export class License extends Metric {
             readmeRating = 0;
         }
 
-        const finalScore = this.weight * (compScore * licenseRating + docScore * readmeRating);
+        const tempScore: number = this.weight * (compScore * licenseRating + docScore * readmeRating);
+
+        let finalScore: number = 0;
+
+        if (tempScore < 0) {
+            finalScore = -1;
+        }
+
         const end = performance.now()
         this.latency = end - start;
         this.score = finalScore;
     }
 
-    calculateScoreNPM(): void {
+    async calculateScoreNPM(): Promise<void> {
         console.log("Calculating License");
         const start = performance.now();
+        
+        const compScore: number = 0.6;
+        const license = await this.findNPMLicense();
+        const licenseRating: number = this.rateLicense(license);
+
         const end = performance.now()
         this.latency = end - start;
         this.score = 0.2;
