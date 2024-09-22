@@ -125,9 +125,27 @@ export class License extends Metric {
         return null;
     }
 
+    rateLicense(licenseType: string): number {
+        let licenseScore = -1;
+        if (licenseType === 'MIT' || licenseType === 'LGPL' || licenseType === 'BSD') {
+            licenseScore = 1.0;
+        } else if (licenseType === 'APACHE') {
+            licenseScore = 0.5;
+        } else if (licenseType === 'GPL') {
+            licenseScore = 0.2;
+        }
+        return licenseScore;
+    }
+
     calculateScoreGithub(): void {
         console.log("Calculating License");
         const start = performance.now();
+
+        // retrieve the license and score the license.
+        const license = await this.findLicense(this.owner, this.repo);
+        const licenseRating = this.rateLicense(license);
+
+
         const end = performance.now()
         this.latency = end - start;
         this.score = 0.2;
