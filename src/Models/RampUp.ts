@@ -49,17 +49,111 @@ export class RampUp extends Metric {
         }
     }
 
-    calculateScoreGithub(): void {
-        console.log("Calculating RampUp");
-        const start = performance.now();
-        const end = performance.now();
-        this.latency = end - start;
-        this.score = 0.5;
+    async getFile(filePath: string): Promise<any> {
+        const apiURL = `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${filePath}`;
+
+        try {
+            const response = await axios.get(apiURL, {
+                headers: {
+                    Authorization: `Bearer ${this.githubToken}`,
+                }
+            });
+            return response.data;
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error(`Error fetching ${filePath}:`, error.message);
+                return null;
+            } else {
+                console.error('An unknown error has occurred');
+                return null;
+            }
+        }
     }
 
-    calculateScoreNPM(): void {
+    decodeFile(encodedContent: string): string {
+        const theBuffer = Buffer.from(encodedContent, 'base64');
+        return theBuffer.toString('utf-8');
+    }
+    
+    async findREADME(): Promise<string | null> {
+        const repoFiles = await this.listRepoFiles();
+        const fileTypes = ['readme', 'readme.txt', 'readme.md'];
+
+        for (const file of repoFiles) {
+            const normalizedFileName = file.toLowerCase();
+
+            if (fileTypes.includes(normalizedFileName)) {
+                const fileData = await this.getFile(file);
+
+                if (fileData && fileData.content) {
+                    const decodedContent = this.decodeFile(fileData);
+
+                    if (decodedContent) {
+                        return decodedContent;
+                    }
+                }
+            }
+
+            await this.delay(1000);
+        }
+
+        // if no readme was found, return null.
+        return null;
+    }
+
+    async getNPMData(): Promise<any> {
+        const apiURL = `https://registry.npmjs.org/${this.packageName}`;
+
+        try {
+            const response = await axios.get(apiURL);
+            return response.data;
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error('Error fetching NPM metadata:', error.message);
+                return null;
+            } else {
+                console.error('An unknown error has occurred');
+                return null;
+            }
+        }
+    }
+
+    async findNPMREADME(): Promise<string | null> {
+        const metadata = await this.getNPMData();
+        
+        if (metadata && metadata.readme) {
+            return metadata.readme;
+        } else {
+            console.warn('No readme found in the NPM metadata');
+            return null;
+            this.score = -1;
+        }
+    }
+
+    // GPT integration.
+    async rateREADME(content: string): Promise<number> {
+        return 1;
+    }
+
+    async calculateScoreGithub(): Promise<void> {
         console.log("Calculating RampUp");
         const start = performance.now();
+
+        const readmeContent: string = await this.findREADME();
+        const readmeRating: number = await this.rateREADME(readmeContent); 
+
+        const end = performance.now();
+        this.latency = end - start;
+        this.score = readmeRating;
+    }
+
+    async calculateScoreNPM(): Promise<void> {
+        console.log("Calculating RampUp");
+        const start = performance.now();
+        
+        const readmeContent: string = await this.findNPMREADME();
+        const readmeRating: number = await this.rateREADME(readmeContent);
+
         const end = performance.now();
         this.latency = end - start;
         this.score = 0.5;
