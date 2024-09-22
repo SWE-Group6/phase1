@@ -12,6 +12,7 @@ export class License extends Metric {
     private owner: string = '';
     private repo: string = '';
     private githubToken: string = '';
+    private packageName: string = '';
 
     constructor(url: string) {
         super(url);
@@ -23,7 +24,10 @@ export class License extends Metric {
             const parts = url.split('/');
             this.owner = parts[3];
             this.repo = parts[4];
-        } 
+        } else if (url.includes('npmjs.com') {
+            // generic npmjs url is: https://npmjs.com/package/{packageName}
+            
+        }
 
         this.githubToken = process.env.GITHUB_TOKEN;
     }
@@ -34,34 +38,59 @@ export class License extends Metric {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    async listRepoFiles(owner:string, repo: string): Promise<string[]> {
+       const apiURL = `https://api.github.com/repos/${owner}/${repo}/contents/`;
+
+       try {
+            const response = await axios.get(apiURL, {
+                headers: {
+                    Authorization: `Bearer ${this.githubToken}`,
+                }
+            });
+            return response.data;
+
+       } catch (error) {
+            if (error instanceof Error) {
+                console.error('Error fetching repo files:', error.message);
+            } else {
+                console.error('An unknown error occurred');
+            }
+       }
+    }
+
     async getFile(owner: string, repo: string, filePath: string): Promise<any> {
        const apiURL = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`; 
 
        try {
             const response = await axios.get(apiURL, {
                 headers: {
-                    Authorization: `Bearer ${this.githubToken}`
+                    Authorization: `Bearer ${this.githubToken}`,
                 }
             });
             return response.data;
 
        } catch (error) {
-            // set the score to -1 if any error occurs. Should I be explicit
-            // with any errors that can occur? (429, 401, 403, 404)
-            this.score = -1; 
-            console.error(`Error fetching ${filePath}:`, error.message);
-            return null;
+           if (error instanceof Error) {
+                // set the score to -1 if any error occurs. Should I be explicit
+                // with any errors that can occur? (429, 401, 403, 404)
+                this.score = -1;
+                console.error(`Error fetching ${filePath}:`, error.message);
+                return null;
+           } else {
+                console.log('An unknown error occurred');
+                return null;
+           }
        }
     }
 
     decodeFile(encodedContent: string): string {
-        const buffer = Buffer.from(encodedContent, 'base64');
-        return buffer.toString('utf-8'); // decoded content is now string
+        const theBuffer = Buffer.from(encodedContent, 'base64');
+        return theBuffer.toString('utf-8'); // decoded content is now string
     }
 
     parseJSON(decodedContent: string): string | null {
         try {
-            const packageJSON = JSON.parse(content);
+            const packageJSON = JSON.parse(decodedContent);
             if (packageJSON.license) {
                 return packageJSON.license;
             }
@@ -98,22 +127,29 @@ export class License extends Metric {
     async findLicense(owner: string, repo: string): Promise<string | null> {
         // many ways to store license files; to not take too long, here are the
         // most important ones I want to consider.
-        const fileTypes = ['LICENSE', 'LICENSE.txt', 'LICENSE.md', 'package.json'];
+        const repoFiles = await this.listRepoFiles(owner, repo);
+        const fileTypes = ['license', 'license.txt', 'lecense.md', 'package.json'];
         
-        for (const files of fileTypes) {
-            const fileData = await this.getFile(owner, repo, file);
-            
-            // if the license was found, decode it and return immediately for
-            // identification.
-            if (fileData) {
-                const decodedContent = this.decodeFile(fileData.content);
+        for (const file of repoFiles) {
+            const normalizedFileName = file.toLowerCase();
 
-                if (file === 'package.json') {
-                    const licenseType = this.parseJSON(decodedContent);
-                    return licenseType;
-                } else {
-                    const licenseType = this.parseFile(decodedContent);
-                    return licenseType;
+            if (fileTypes.includes(normalizedFileName)) {
+                const fileData = await this.getFile(owner, repo, file);
+
+                if (fileData && fileData.content) {
+                    const decodedContent = this.decodeFile(fileData.content);
+
+                    if (file === 'package.json') {
+                        const licenseType = this.parseJSON(decodedContent);
+                        if (licenseType) {
+                            return licenseType;
+                        }
+                    } else {
+                        const licenseType = this.parseFile(decodedContent);
+                        if (licenseType) {
+                            return licenseType;
+                        }
+                    }
                 }
             }
 
@@ -121,7 +157,32 @@ export class License extends Metric {
         }
 
         // if no license was found, set score to -1.
-        this.score = -1;
+        return null;
+    }
+
+    async findREADME(owner: string, repo: string): Promise<string | null> {
+        const repoFiles = await this.listRepoFiles(owner, repo);
+        const fileTypes = ['readme', 'readme.txt', 'readme.md'];
+
+        for (const file of repoFiles) {
+            const normalizedFileName = file.toLowerCase(); 
+
+            if (fileTypes.includes(normalizedFileName)) {
+                const fileData = await this.getFile(owner, repo, file);
+
+                if (fileData && fileData.content) {
+                    const decodedContent = this.decodeFile(fileData.content);
+
+                    const licenseType = this.parseFile(decodedContent);
+                    if (licenseType) {
+                        return licenseType;
+                    }
+                }
+            }
+            await this.delay(1000);
+        }
+
+        // if no readme was found, return null
         return null;
     }
 
@@ -137,18 +198,30 @@ export class License extends Metric {
         return licenseScore;
     }
 
-    calculateScoreGithub(): void {
+    async calculateScoreGithub(): Promise<void> {
         console.log("Calculating License");
         const start = performance.now();
+
+        const compScore = 0.6;
+        const docScore = 0.4;
 
         // retrieve the license and score the license.
         const license = await this.findLicense(this.owner, this.repo);
         const licenseRating = this.rateLicense(license);
+        
+        const readme = await this.findREADME(this.owner, this.repo);
+        let readmeRating = 0;
 
+        if (readme == license) {
+            readmeRating = 1.0;
+        } else {
+            readmeRating = 0;
+        }
 
+        const finalScore = this.weight * (compScore * licenseRating + docScore * readmeRating);
         const end = performance.now()
         this.latency = end - start;
-        this.score = 0.2;
+        this.score = finalScore;
     }
 
     calculateScoreNPM(): void {
