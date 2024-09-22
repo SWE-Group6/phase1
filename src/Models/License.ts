@@ -214,7 +214,7 @@ export class License extends Metric {
         return null;
     }
 
-    rateLicense(licenseType: string): number {
+    rateLicense(licenseType: string | null): number {
         let licenseScore = -1;
         if (licenseType === 'MIT' || licenseType === 'LGPL' || licenseType === 'BSD') {
             licenseScore = 1.0;

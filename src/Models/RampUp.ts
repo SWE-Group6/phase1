@@ -7,6 +7,11 @@ export class RampUp extends Metric {
         super(url);
     }
 
+    // methods for retrieval, GPT, and scoring.
+    private delay(ms: number): Promise<void> {
+
+    }
+
     calculateScoreGithub(): void {
         console.log("Calculating RampUp");
         const start = performance.now();
