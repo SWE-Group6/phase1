@@ -53,8 +53,10 @@ export class License extends Metric {
        } catch (error) {
             if (error instanceof Error) {
                 console.error('Error fetching repo files:', error.message);
+                return [];
             } else {
                 console.error('An unknown error occurred');
+                return [];
             }
        }
     }
