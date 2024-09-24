@@ -1,4 +1,4 @@
-name: Run Tests
+name: Run Tests and Coverage
 
 on: [push, pull_request]
 
@@ -7,16 +7,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Step 1: Checkout the repository
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    # Step 2: Set up Node.js (you can modify the version if necessary)
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '14'  # Ensure this matches your local version
 
+    # Step 3: Install dependencies using npm ci for consistency
     - name: Install dependencies
-      run: npm install
+      run: npm ci
 
-    - name: Run tests with coverage
+    # Step 4: Run tests with coverage
+    - name: Run tests and generate coverage
       run: npm test -- --coverage
+
+    # Step 5: Check and display coverage summary (optional but recommended)
+    - name: Show coverage summary
+      run: |
+        if [ -f ./coverage/coverage-summary.json ]; then
+          echo "Coverage Summary:"
+          cat ./coverage/coverage-summary.json
+        else
+          echo "No coverage report found."
+          exit 1
+        fi

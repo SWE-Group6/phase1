@@ -1,6 +1,7 @@
 import { Metric } from "./Metric";
-import { promises as fs } from "fs"; // To read files
-import axios from 'axios'; // For GitHub API calls if necessary
+import { promises as fs } from "fs"; 
+import axios from 'axios'; 
+import { performance } from 'perf_hooks';
 
 export class Correctness extends Metric {
     public weight: number = 0.15;
@@ -26,8 +27,17 @@ export class Correctness extends Metric {
 
         try {
             // Read the coverage-summary.json file dynamically
+            const fileExists = await fs.stat("./coverage/coverage-summary.json").then(() => true).catch(() => false);
+
+            if (!fileExists) {
+            console.error("Coverage file not found.");
+            this.npmScore = 0; // Default to 0 if file is missing
+            return;
+            }
+            
             const data = await fs.readFile("./coverage/coverage-summary.json", "utf8");
             const coverageData = JSON.parse(data);
+
             const coverage = coverageData.total.lines.pct / 100; 
             this.npmScore = 0.4 * coverage; 
 

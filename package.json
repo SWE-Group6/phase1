@@ -6,7 +6,7 @@
     "build": "tsc",
     "start": "node dist/Server/server.js",
     "generate-schema": "ts-node src/generateSchema.ts",
-    "test": "jest src/Test/Correctness.test.ts --reporters=default --reporters=./test-reporter.js --coverage"
+    "test": "jest --reporters=default --reporters=./test-reporter.js --coverage"
   },
   "keywords": [],
   "author": "",
