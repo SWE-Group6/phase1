@@ -15,6 +15,8 @@ export class Correctness extends Metric {
     // Calculate score based on GitHub test results
     async calculateScoreGithub(): Promise<void> {
         console.log("Calculating GitHubCorrectness");
+        const start = performance.now();
+
         const successRate = 0.1; 
         this.githubScore = 0.6 * successRate;
 
@@ -24,17 +26,10 @@ export class Correctness extends Metric {
     // Calculate score based on NPM test coverage
     async calculateScoreNPM(): Promise<void> {
         console.log("Calculating NPM Correctness");
+        const start = performance.now();
 
         try {
             // Read the coverage-summary.json file dynamically
-            const fileExists = await fs.stat("./coverage/coverage-summary.json").then(() => true).catch(() => false);
-
-            if (!fileExists) {
-            console.error("Coverage file not found.");
-            this.npmScore = 0; // Default to 0 if file is missing
-            return;
-            }
-            
             const data = await fs.readFile("./coverage/coverage-summary.json", "utf8");
             const coverageData = JSON.parse(data);
 
