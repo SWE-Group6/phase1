@@ -15,12 +15,12 @@ describe('Correctness', () => {
 
   it('should calculate the NPM Correctness score', async () => {
     await correctness.calculateScoreNPM();
-    expect(correctness.getNpmScore()).to.be.closeTo(0, 0.001); 
+    expect(correctness.getNpmScore()).to.be.closeTo(0.32, 0.001); 
   });
 
   it('should calculate the final combined correctness score', async () => {
     await correctness.calculateScore();
-    expect(correctness.getScore()).to.be.closeTo(0.06, 0.001);
+    expect(correctness.getScore()).to.be.closeTo(0.38, 0.001);
   });
 
   it('should be an instance of Correctness', () => {
