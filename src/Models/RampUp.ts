@@ -12,7 +12,7 @@ export class RampUp extends Metric {
 
     constructor(url: string) {
         super(url);
-
+        dotenv.config();
         // set up based on which link is provided.
         if (url.includes('github.com')) {
             const parts = url.split('/');
