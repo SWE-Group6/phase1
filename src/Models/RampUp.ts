@@ -1,12 +1,16 @@
-/*
-    Celedonio G.
-    NAME: RampUp.ts
-    DESC: Determine how easy it is for a developer to get started setting up and 
-    using a given packaage. Fetch a packages' README file, then use ChatGPT to
-    anaylze the above. Based on the issue from GitHub:
-    We will grab the readme for the given node package, and then use the GPT API to get a score for the rampup.
-    Below is the prompt to do so: Prompt: Here is a readme for a node package.
+/* Celedonio G.
+ * NAME: RampUp.ts
+ * DESC: Determine how easy it is for a developer to get started setting up and 
+ * using a given packaage. Fetch a packages' README file, then use ChatGPT to
+ * anaylze the above. Based on the issue from GitHub:
+ * We will grab the readme for the given node package, and then use the GPT API to get a score for the rampup.
+ * Below is the prompt to do so: Prompt: Here is a readme for a node package. 
+ * I want to calculate the ramp up score, which means how easy it is for a developer to get started with this
+ * package. analyze the following readme for this package and give me a score for the package from 0 to 1
+ * for the ramp up score. Give me the score only in a json format with the key as ramp_up_score and 
+ * value to be the score you decide. If the readme does not exist, the score is 0.
 */
+
 import {Metric} from "./Metric";
 import axios from 'axios'; 
 import dotenv from 'dotenv';
@@ -36,11 +40,19 @@ export class RampUp extends Metric {
         this.githubToken = process.env.GITHUB_TOKEN;
         this.openaiToken = process.env.OPENAI_TOKEN;
     }
-    
+   
+    // PURPOSE: Delay a process so that an API is not flooded with calls.
+    // EXPECTED OUTPUT: A new promise after waiting x ms. (Promise<void>).
+    // PARAMTERS: ms: number (the amount to wait in ms before trying again).
     private delay(ms: number): Promise<void> {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    // PURPOSE: List the contents of a GitHub url so that I can find the
+    // specific contents later.
+    // EXPECTED OUTPUT: An array that contains things like 'license.md',
+    // 'readme.md', etc. (string[]).
+    // PARAMETERS: None.
     async listRepoFiles(): Promise<string[]> {
         const apiURL = `https://api.github.com/repos/${this.owner}/${this.repo}/contents/`;
 
@@ -62,6 +74,10 @@ export class RampUp extends Metric {
         }
     }
 
+    // PURPOSE: Get a particular file.
+    // EXPECTED OUTPUT: Data retrieved from an GET request.
+    // PARAMETERS: filePath: string (readme files might be a particular format,
+    // need to specifiy which one to get).
     async getFile(filePath: string): Promise<any> {
         const apiURL = `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${filePath}`;
 
@@ -83,11 +99,22 @@ export class RampUp extends Metric {
         }
     }
 
+    // PURPOSE: Once a file is retrieved, decode it to string to get its
+    // content.
+    // EXPECTED OUTPUT: The content of a file. (string).
+    // PARAMETERS: encodedContent: string (the content gotten after making a
+    // get request).
     decodeFile(encodedContent: string): string {
         const theBuffer = Buffer.from(encodedContent, 'base64');
         return theBuffer.toString('utf-8');
     }
     
+    // PURPOSE: Retrieve the contents of a GitHub url, find the README file by
+    // comparing it to the three most common file types. Then decode it to rate
+    // it.
+    // EXPECTED OUTPUT: It either returns the content of the readme file or
+    // nothing at all (b/c it failed). (String | NULL).
+    // PARAMTERS: None.
     async findREADME(): Promise<string | null> {
         const repoFiles = await this.listRepoFiles();
         const fileTypes = ['readme', 'readme.txt', 'readme.md'];
@@ -114,6 +141,10 @@ export class RampUp extends Metric {
         return null;
     }
 
+    // PURPOSE: If an npmjs url was given, this is the method to call to fetch
+    // the contents of the url.
+    // EXPECTED OUTPUT: List the content of the url (looking for README).
+    // PARAMETERS: none.
     async getNPMData(): Promise<any> {
         const apiURL = `https://registry.npmjs.org/${this.packageName}`;
 
@@ -131,6 +162,10 @@ export class RampUp extends Metric {
         }
     }
 
+    // PURPOSE: After fetching the contents of the url, get the readme content
+    // from the metadata.
+    // EXPECTED OUTPUT: Rhe content of the readme (string | NULL).
+    // PARAMETERS: None.
     async findNPMREADME(): Promise<string | null> {
         const metadata = await this.getNPMData();
         
@@ -192,6 +227,11 @@ export class RampUp extends Metric {
         */
     }
 
+    // Method that gets called depends on the type of url that was given.
+    
+    // PURPOSE: Calculate the score of a package in terms of ramp up time.
+    // EXPECTED OUTPUT: None.
+    // PARAMETERS: None.
     async calculateScoreGithub(): Promise<void> {
         console.log("Calculating RampUp");
         const start = performance.now();
@@ -204,6 +244,9 @@ export class RampUp extends Metric {
         this.score = readmeRating;
     }
 
+    // PURPOSE: Calculate the score of a package in terms of ramp up time.
+    // EXPECTED OUTPUT: None.
+    // PARAMETERS: None.
     async calculateScoreNPM(): Promise<void> {
         console.log("Calculating RampUp");
         const start = performance.now();
