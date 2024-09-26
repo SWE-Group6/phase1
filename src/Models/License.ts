@@ -16,6 +16,7 @@ export class License extends Metric {
 
     constructor(url: string) {
         super(url);
+        dotenv.config();
 
         // if the url is GitHub, break down into components for later
         // processing.
@@ -28,7 +29,9 @@ export class License extends Metric {
             // generic npmjs url is: https://npmjs.com/package/{packageName}
             const parts = url.split('/'); 
             this.packageName = parts[4];
-        }
+        } else {
+            this.score = 0.0;
+        } 
 
         this.githubToken = process.env.GITHUB_TOKEN;
     }
