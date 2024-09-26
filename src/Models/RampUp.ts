@@ -1,3 +1,12 @@
+/*
+    Celedonio G.
+    NAME: RampUp.ts
+    DESC: Determine how easy it is for a developer to get started setting up and 
+    using a given packaage. Fetch a packages' README file, then use ChatGPT to
+    anaylze the above. Based on the issue from GitHub:
+    We will grab the readme for the given node package, and then use the GPT API to get a score for the rampup.
+    Below is the prompt to do so: Prompt: Here is a readme for a node package.
+*/
 import {Metric} from "./Metric";
 import axios from 'axios'; 
 import dotenv from 'dotenv';
@@ -21,6 +30,8 @@ export class RampUp extends Metric {
         } else if (url.includes('npmjs.com')) {
             const parts = url.split('/');
             this.packageName = parts[4];
+        } else {
+            this.score = 0.0;
         }
         this.githubToken = process.env.GITHUB_TOKEN;
         this.openaiToken = process.env.OPENAI_TOKEN;
