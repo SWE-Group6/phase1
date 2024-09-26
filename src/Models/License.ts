@@ -1,6 +1,12 @@
 /* Celedonio G. 
  * NAME: License Metric
- * 
+ * DESC: Check a packages' license to see if it contains certain words. Fetch
+ * thier license file using GitHub API. As stated on our project board: 
+ * The license of the npm package should be compatible with the GNU Lesser
+ * General Public License v2.1.
+ * If the license is fully compatible, the package should score higher.
+ * Proper documentation and accessibility of the license is crucial. Points
+ * could be awarded based on whether or not the license is clearly stated. 
 */
 
 import {Metric} from "./Metric";
@@ -38,10 +44,19 @@ export class License extends Metric {
 
     // methods for retrieval, identification, and scoring.
     // introduce delays after each request to prevent flooding.
+
+    // PURPOSE: Delay a process so that an API is not flooded with calls.
+    // EXPECTED OUTPUT: A new promise after awaiting x ms. (Promise<void>).
+    // PARAMETERS: ms: number (the amount to wait in ms before trying again).
     private delay(ms: number): Promise<void> {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    // PURPOSE: List the contents of a GitHub url so that I can find the
+    // specific contents later.
+    // EXPECTED OUTPUT: An array that contains things like 'license.txt',
+    // 'license.md', 'license.rst'.
+    // PARAMETERS: owner: string, repo: string.
     async listRepoFiles(owner:string, repo: string): Promise<string[]> {
        const apiURL = `https://api.github.com/repos/${owner}/${repo}/contents/`;
 
