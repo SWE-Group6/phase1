@@ -11,6 +11,7 @@ export class AllMetrics {
     public metrics: Metric[] = [];
     private netScore: number = 0;
     private netScoreLatency: number = 0;
+    private url: string = "";
 
     constructor(url: string) {
         this.metrics.push(new BusFactor(url));
@@ -18,30 +19,33 @@ export class AllMetrics {
         this.metrics.push(new ResponsiveMaintainer(url));
         this.metrics.push(new RampUp(url));
         this.metrics.push(new License(url));
-
-        //check if url is npm url or github url
-        if (this.checkUrlType(url) === 'npm') {
-            this.metrics.forEach(metric => {
-                metric.calculateScoreNPM();
-            });
-        }
-        else {
-            this.metrics.forEach(metric => {
-                metric.calculateScoreGithub();
-            });
-        }
+        this.url = url;
         
     }
     
-    public calculateNetScore(): number {
+    public async calculateNetScore(): Promise<number> {
         const start = performance.now();
-        this.metrics.forEach(metric => {
-            //print the class name and the details to console.log by typecasting in to the concrete class
-            console.log(metric.constructor.name);
-            console.log("Score: " + metric.getScore());
-            console.log("Weight: " + metric.weight);
-            this.netScore += metric.getScore() * metric.weight;            
-        });
+        if (this.checkUrlType(this.url) === 'npm') {
+            await Promise.all(this.metrics.map(metric => metric.calculateScoreNPM()));
+
+            this.metrics.forEach(metric => {
+                console.log(metric.constructor.name);
+                console.log("Score: " + metric.getScore());
+                console.log("Weight: " + metric.weight);
+                this.netScore += metric.getScore() * metric.weight;            
+            });
+        }
+        else {
+            await Promise.all(this.metrics.map(metric => metric.calculateScoreGithub()));
+
+            this.metrics.forEach(metric => {
+                console.log(metric.constructor.name);
+                console.log("Score: " + metric.getScore());
+                console.log("Weight: " + metric.weight);
+                this.netScore += metric.getScore() * metric.weight;            
+            });
+        }
+        
 
         const end = performance.now();
         this.netScoreLatency = end - start;

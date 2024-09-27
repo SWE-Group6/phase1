@@ -12,12 +12,14 @@ export class Package {
         this.url = url;
         this.packageMetrics = new AllMetrics(url);
 
-        this.packageMetrics.calculateNetScore();
+        
 
     }
 
-    public getMetrics(): any {
+    public async getMetrics(): Promise<any> {
         // return a json object of all the values of the metrics
+        //async call to calculateNetScore
+        await Promise.all([this.packageMetrics.calculateNetScore()]);
         console.log("Getting Metrics");
         return {
             URL: this.url,
