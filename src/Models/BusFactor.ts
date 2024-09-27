@@ -60,7 +60,6 @@ interface Response {
 
 export class BusFactor extends Metric {
   public weight: number = 0.25;
-  public token = '';
 
   constructor(url: string) {
       super(url);
@@ -76,12 +75,16 @@ export class BusFactor extends Metric {
       const end = performance.now();
       this.latency = end - start;
       this.score = result;
+
+      console.log(this.latency);
+      console.log(this.score);
   }
   async calculateScoreNPM(): Promise<void> {
       console.log("Calculating BusFactor for NPM");
       const start = performance.now();
 
       const githubUrl = await this.getGitHubUrl();
+      console.log(githubUrl);
 
       if(githubUrl != null) {
         const url_components = this.analyzeUrl(githubUrl);
@@ -96,6 +99,8 @@ export class BusFactor extends Metric {
         this.score = 0;
       }
       
+      console.log(this.latency);
+      console.log(this.score);
 
   }
 
@@ -180,16 +185,27 @@ export class BusFactor extends Metric {
     
     const data = await response.json();
     const repository = data.repository;
-    
   
+
     if (repository && repository.url) {
-      // Clean up the URL (remove 'git+' and '.git')
-      const gitHubUrl = repository.url.replace(/^git\+/, '').replace(/\.git$/, '');
+      let gitHubUrl = repository.url;
+
+      // Handle 'git://' and 'git+https://' formats
+      if (gitHubUrl.startsWith('git://')) {
+        gitHubUrl = gitHubUrl.replace('git://', 'https://');
+      } else if (gitHubUrl.startsWith('git+https://')) {
+        gitHubUrl = gitHubUrl.replace('git+https://', 'https://');
+      }
+
+      // Remove any trailing '.git' if present
+      gitHubUrl = gitHubUrl.replace(/\.git$/, '');
+
       return gitHubUrl;
-    } else {
-      console.log(`No GitHub repository found for ${packageName}`);
-      return null;
-    }
   }
+}
+
 
 }
+
+const Test = new BusFactor('https://www.npmjs.com/package/object-inspect');
+Test.calculateScoreNPM();
