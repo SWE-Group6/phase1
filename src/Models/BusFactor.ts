@@ -75,16 +75,12 @@ export class BusFactor extends Metric {
       const end = performance.now();
       this.latency = end - start;
       this.score = result;
-
-      console.log(this.latency);
-      console.log(this.score);
   }
   async calculateScoreNPM(): Promise<void> {
       console.log("Calculating BusFactor for NPM");
       const start = performance.now();
 
       const githubUrl = await this.getGitHubUrl();
-      console.log(githubUrl);
 
       if(githubUrl != null) {
         const url_components = this.analyzeUrl(githubUrl);
@@ -98,9 +94,6 @@ export class BusFactor extends Metric {
         this.latency = end - start;
         this.score = 0;
       }
-      
-      console.log(this.latency);
-      console.log(this.score);
 
   }
 
