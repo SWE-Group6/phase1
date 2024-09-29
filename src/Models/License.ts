@@ -89,7 +89,6 @@ export class License extends Metric {
            if (error instanceof Error) {
                 // set the score to -1 if any error occurs. Should I be explicit
                 // with any errors that can occur? (429, 401, 403, 404)
-                console.error(`Error fetching ${filePath}:`, error.message);
                 return null;
            } else {
                 console.log('An unknown error occurred');
@@ -113,7 +112,7 @@ export class License extends Metric {
         } catch (error) {
         // return null if the json file does not have a license field.
             if (error instanceof Error) {
-                console.error('Error parsing package.json:', error);
+                // console.error('Error parsing package.json:', error);
                 return null;
             }
             else{
@@ -126,20 +125,26 @@ export class License extends Metric {
     parseFile(decodedContent: string): string | null {
         const sanitizedContent = decodedContent.toLowerCase();
         console.log("Sanitized Content: ", sanitizedContent);
-        if (sanitizedContent.includes('mit')) {
-            return 'MIT';
+    
+        // Check for more specific licenses first
+        if (sanitizedContent.includes('apache-2.0')) {
+            return 'APACHE-2.0';
+        } else if (sanitizedContent.includes('apache')) {
+            return 'APACHE';
         } else if (sanitizedContent.includes('gpl')) {
             return 'GPL';
         } else if (sanitizedContent.includes('lgpl')) {
             return 'LGPL';
-        } else if (sanitizedContent.includes('apache') || sanitizedContent.includes('apache-2.0')) {
-            return 'APACHE';
         } else if (sanitizedContent.includes('mozilla public license')) {
             return 'MOZILLA';
         } else if (sanitizedContent.includes('bsd')) {
             return 'BSD';
+        } else if (sanitizedContent.includes('mit')) {
+            // MIT check last since 'mit' can often appear alongside other licenses
+            return 'MIT';
         }
-        // base case: no license was found in the license file. 
+    
+        // Base case: no license was found in the license file. 
         return null;
     }
 
@@ -175,7 +180,7 @@ export class License extends Metric {
         
                 await this.delay(1000);
             } else {
-                console.warn(`Unexpected file type: ${typeof file}`, file);
+                // console.warn(`Unexpected file type: ${typeof file}`, file);
             }
         }
         return '';
@@ -228,7 +233,7 @@ export class License extends Metric {
 
         // retrieve the license and score the license.
         const license = await this.findLicense(this.owner, this.repo);
-        console.log("License found: ", license);
+        //console.log("License found: ", license);
         const licenseRating = this.rateLicense(license);
         
         const end = performance.now()

@@ -1,30 +1,31 @@
 import { Metric } from "./Metric";
 
 const query = `
-  query($owner: String!, $repo: String!, $cursor: String, $since: GitTimestamp!) {
-    repository(owner: $owner, name: $repo) {
-      ref(qualifiedName: "main") {
-        target {
-          ... on Commit {
-            history(first: 100, after: $cursor, since: $since) {
-              totalCount
-              edges {
-                node {
-                  author {
-                    name
-                  }
+query($owner: String!, $repo: String!, $cursor: String, $since: GitTimestamp!) {
+  repository(owner: $owner, name: $repo) {
+    defaultBranchRef {
+      name
+      target {
+        ... on Commit {
+          history(first: 100, after: $cursor, since: $since) {
+            totalCount
+            edges {
+              node {
+                author {
+                  name
                 }
               }
-              pageInfo {
-                hasNextPage
-                endCursor
-              }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
             }
           }
         }
       }
     }
   }
+}
 `;
 
 interface CommitNode {
@@ -49,7 +50,7 @@ interface CommitHistory {
 interface Response {
   data: {
     repository: {
-      ref: {
+      defaultBranchRef: {
         target: {
           history: CommitHistory;
         }
@@ -81,6 +82,7 @@ export class BusFactor extends Metric {
       const start = performance.now();
 
       const githubUrl = await this.getGitHubUrl();
+      console.log(githubUrl);
 
       if(githubUrl != null) {
         const url_components = this.analyzeUrl(githubUrl);
@@ -94,6 +96,9 @@ export class BusFactor extends Metric {
         this.latency = end - start;
         this.score = 0;
       }
+      
+      // console.log(this.latency);
+      // console.log(this.score);
 
   }
 
@@ -120,7 +125,7 @@ export class BusFactor extends Metric {
     });
   
     const result = await response.json() as Response;
-    const data = result.data.repository.ref.target.history;
+    const data = result.data.repository.defaultBranchRef.target.history;
   
     data.edges.forEach((commit: CommitNode) => {
       const authorName = commit.node.author?.name || "Unknown";
@@ -133,7 +138,7 @@ export class BusFactor extends Metric {
     cursor = data.pageInfo.endCursor;
   
     if(totalCount == 0) {
-      totalCount = result.data.repository.ref.target.history.totalCount;
+      totalCount = result.data.repository.defaultBranchRef.target.history.totalCount;
     }
   
     }
@@ -196,6 +201,5 @@ export class BusFactor extends Metric {
       return gitHubUrl;
   }
 }
-
 
 }

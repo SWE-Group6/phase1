@@ -14,7 +14,6 @@ export abstract class Metric {
         this.url = url;
         dotenv.config();
         if (process.env.GITHUB_TOKEN_TEST) {
-            console.log("GITHUB_TOKEN found in .env file: " + process.env.GITHUB_TOKEN_TEST);
             this.token = process.env.GITHUB_TOKEN_TEST;
         }
         else {

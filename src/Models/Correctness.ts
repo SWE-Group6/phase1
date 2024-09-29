@@ -24,7 +24,7 @@ export class Correctness extends Metric {
     // Calculate score based on GitHub test results
     async calculateScoreGithub(): Promise<void> {
         const start = performance.now();
-        const testSuccessRate = await this.getGithubActionTestSuccessRate();
+        const testSuccessRate = await this.getGithubActionTestSuccessRate() || 0;
         this.score = testSuccessRate;
         const end = performance.now();
         this.latency = end - start;
@@ -32,32 +32,53 @@ export class Correctness extends Metric {
 
     // Helper method to fetch test success rate from GitHub Actions API
     private async getGithubActionTestSuccessRate(): Promise<number> {
-        const githubUrl = `https://api.github.com/repos/${this.owner}/${this.repo}/actions/runs?status=completed`;
-
+        // console.log("Owner: ", this.owner);
+        // console.log("Repo: ", this.repo);
+        const githubUrl = `https://api.github.com/repos/${this.owner}/${this.repo}/actions/runs`;
+    
         try {
+
             const response = await fetch(githubUrl, {
                 headers: {
-                    Authorization: `token ${this.token}`,
+                    Authorization: `token ${this.token}`, // Ensure the token is valid
                 },
             });
-
+    
+            // Check for non-success HTTP status
+            if (!response.ok) {
+                console.error(`GitHub API responded with status: ${response.status}`);
+                return 0; // Return 0 if there's an error
+            }
+    
             const data = await response.json();
+            
+            // Log the full data to understand its structure
+            //console.log("GitHub API response data:", data);
+    
+            // Ensure workflow_runs is defined and is an array
             const runs = data.workflow_runs;
-
+            if (!runs || !Array.isArray(runs)) {
+                console.log("No workflow runs found or invalid response structure.");
+                return 0;
+            }
+    
+            //console.log("Runs: ", runs);
+    
             if (runs.length === 0) {
                 return 0; // No test runs found
             }
-
+    
             const successRuns = runs.filter((run: any) => run.conclusion === 'success').length; 
             console.log(`Success runs: ${successRuns}, Total runs: ${runs.length}`);
             const successRate = successRuns / runs.length;
-
+    
             return successRate;
         } catch (error) {
-            console.log("Error fetching test success rate from GitHub:", error);
+            console.error("Error fetching test results from GitHub Actions:", error);
             return 0; // Return 0 if the request fails
         }
     }
+    
 
     // Fetch GitHub URL from the NPM registry and calculate score based on that URL
     async calculateScoreNPM(): Promise<void> {
@@ -85,7 +106,8 @@ export class Correctness extends Metric {
                 this.score = 0; // Set score to 0 if no GitHub URL is found
             }
         } catch (error) {
-            console.error("Error fetching package info from NPM:", error);
+            console.log("Error fetching package info from NPM:", error);
+            this.score = 0; // Set score to 0 if the request
         }
         const end = performance.now();
         this.latency = end - start;

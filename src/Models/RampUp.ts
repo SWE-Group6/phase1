@@ -87,7 +87,7 @@ export class RampUp extends Metric {
             return response.data;
         } catch (error) {
             if (error instanceof Error) {
-                console.error(`Error fetching ${filePath}:`, error.message);
+                // console.error(`Error fetching ${filePath}:`, error.message);
                 return null;
             } else {
                 console.error('An unknown error has occurred');
@@ -131,7 +131,7 @@ export class RampUp extends Metric {
         
                 await this.delay(1000);
             } else {
-                console.warn(`Unexpected file type: ${typeof file}`, file);
+                // console.warn(`Unexpected file type: ${typeof file}`, file);
             }
         }
 
@@ -191,12 +191,16 @@ export class RampUp extends Metric {
                 { role: "user", content: `Here is the readme file: "${content}".\nI want to calculate the ramp up score, which means how easy it is for a developer to get started with this package.\nAnalyze the following readme and give me a score for the package between 0 and 1. Give me only the score in JSON format with the key as ramp_up_score and the value to be the score you decide.\nIf a readme doesn't exist, the score is 0.` },
             ],
             model: 'gpt-3.5-turbo',
+            temperature: 0
         });
         //convert the response to a json object.
         const response = chatCompletion.choices[0].message.content;
         if (response) {
             // Convert the response to a JSON object
             try {
+                //save response to a file
+                const fs = require('fs');
+                fs.writeFileSync('response.json', response);
                 const jsonResponse = JSON.parse(response);
         
                 // Access the ramp_up_score value
