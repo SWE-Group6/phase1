@@ -19,7 +19,6 @@ export class RampUp extends Metric {
     public weight: number = 0.15;
     private owner: string = '';
     private repo: string = '';
-    private githubToken: string = '';
     private openaiToken: string = '';
     private packageName: string = '';
 
@@ -34,13 +33,13 @@ export class RampUp extends Metric {
         } else if (url.includes('npmjs.com')) {
             const parts = url.split('/');
             this.packageName = parts[4];
-        } else {
-            this.score = 0.0;
         }
-        this.githubToken = process.env.GITHUB_TOKEN;
-        this.openaiToken = process.env.OPENAI_TOKEN;
+        // this will probably also be done in metric constructor?
+        // this.openaiToken = process.env.OPENAI_TOKEN;
     }
    
+    // methods for retrieval and scoring.
+    
     // PURPOSE: Delay a process so that an API is not flooded with calls.
     // EXPECTED OUTPUT: A new promise after waiting x ms. (Promise<void>).
     // PARAMTERS: ms: number (the amount to wait in ms before trying again).
@@ -174,7 +173,6 @@ export class RampUp extends Metric {
         } else {
             console.warn('No readme found in the NPM metadata');
             return null;
-            this.score = -1;
         }
     }
 
@@ -206,22 +204,23 @@ export class RampUp extends Metric {
                 } catch (error) {
                     if (error instanceof Error) {
                         console.error('Failed to parse data as JSON', error.message);
-                        return -1;
+                        return 0;
                     } else {
                         console.error('An unknown error occurred');
-                        return -1;
+                        return 0;
                     }
                 }
             } else {
                 console.error('Invalid response from API');
-                return -1;
+                return 0;
             }
         } catch (error) {
             if (error instanceof Error) {
                 console.error('Error making request:', error.message);
+                return 0;
             } else {
                 console.error('An unknown error occurred');
-                return -1;
+                return 0;
             } 
         }
         */
