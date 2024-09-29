@@ -24,7 +24,6 @@ export class AllMetrics {
     }
     
     public async calculateNetScore(): Promise<number> {
-        const start = performance.now();
         if (this.checkUrlType(this.url) === 'npm') {
             await Promise.all(this.metrics.map(metric => metric.calculateScoreNPM()));
 
@@ -32,7 +31,8 @@ export class AllMetrics {
                 console.log(metric.constructor.name);
                 console.log("Score: " + metric.getScore());
                 console.log("Weight: " + metric.weight);
-                this.netScore += metric.getScore() * metric.weight;            
+                this.netScore += metric.getScore() * metric.weight;     
+                this.netScoreLatency += metric.getLatency();       
             });
         }
         else {
@@ -42,13 +42,10 @@ export class AllMetrics {
                 console.log(metric.constructor.name);
                 console.log("Score: " + metric.getScore());
                 console.log("Weight: " + metric.weight);
-                this.netScore += metric.getScore() * metric.weight;            
+                this.netScore += metric.getScore() * metric.weight;
+                this.netScoreLatency += metric.getLatency();     
             });
         }
-        
-
-        const end = performance.now();
-        this.netScoreLatency = end - start;
 
         return this.netScore;
     }

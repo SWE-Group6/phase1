@@ -147,7 +147,7 @@ export class License extends Metric {
         // many ways to store license files; to not take too long, here are the
         // most important ones I want to consider.
         const repoFiles = await this.listRepoFiles(owner, repo);
-        const fileTypes = ['license', 'license.txt', 'lecense.md', 'package.json'];
+        const fileTypes = ['license', 'license.txt', 'license.md', 'package.json'];
         
         for (const file of repoFiles) {
             if (typeof file === 'string') {
