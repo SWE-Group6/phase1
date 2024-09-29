@@ -125,13 +125,14 @@ export class License extends Metric {
 
     parseFile(decodedContent: string): string | null {
         const sanitizedContent = decodedContent.toLowerCase();
+        console.log("Sanitized Content: ", sanitizedContent);
         if (sanitizedContent.includes('mit')) {
             return 'MIT';
         } else if (sanitizedContent.includes('gpl')) {
             return 'GPL';
         } else if (sanitizedContent.includes('lgpl')) {
             return 'LGPL';
-        } else if (sanitizedContent.includes('apache')) {
+        } else if (sanitizedContent.includes('apache') || sanitizedContent.includes('apache-2.0')) {
             return 'APACHE';
         } else if (sanitizedContent.includes('mozilla public license')) {
             return 'MOZILLA';
@@ -208,10 +209,12 @@ export class License extends Metric {
     }
 
     rateLicense(licenseType: string): number {
+        //convert to uppercase for easier comparison.
+        licenseType = licenseType.toUpperCase();
         let licenseScore = 0;
         if (licenseType === 'MIT' || licenseType === 'LGPL' || licenseType === 'BSD') {
             licenseScore = 1.0;
-        } else if (licenseType === 'APACHE') {
+        } else if (licenseType === 'APACHE' || licenseType === 'APACHE-2.0') {
             licenseScore = 0.5;
         } else if (licenseType === 'GPL') {
             licenseScore = 0.2;
