@@ -10,21 +10,18 @@ describe('Metric', () => {
         console.log("Method not implemented.");
       }
     }
-    const metric = new TestMetric('http://example.com');
+    const metric = new TestMetric('https://github.com/cloudinary/cloudinary_npm');
     expect(metric.getScore()).to.equal(0);
     expect(metric.getLatency()).to.equal(0);
   });
-});
 
-// add test case to check if the object is an instance of Metric
-describe('Metric', () => {
   it('should be an instance of Metric', () => {
     class TestMetric extends Metric {
       weight = 0.5;
       calculateScoreGithub() {}
       calculateScoreNPM() {}
     }
-    const metric = new TestMetric('http://example.com');
+    const metric = new TestMetric('https://github.com/cloudinary/cloudinary_npm');
     expect(metric).to.be.an.instanceOf(Metric);
   });
-})
+});
