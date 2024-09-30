@@ -41,7 +41,7 @@ export class RampUp extends Metric {
     // PURPOSE: Delay a process so that an API is not flooded with calls.
     // EXPECTED OUTPUT: A new promise after waiting x ms. (Promise<void>).
     // PARAMTERS: ms: number (the amount to wait in ms before trying again).
-    private delay(ms: number): Promise<void> {
+    public delay(ms: number): Promise<void> {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 

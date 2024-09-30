@@ -98,6 +98,10 @@ export class Correctness extends Metric {
 
                 // Update the class property `url` with the GitHub URL
                 this.url = githubUrl;
+                // generic npmjs url is: https://npmjs.com/package/{packageName}
+                const parts = this.url.split('/'); 
+                this.owner = parts[3];
+                this.repo = parts[4];
 
                 // Call the GitHub score calculation method
                 await this.calculateScoreGithub();
