@@ -198,14 +198,11 @@ export class RampUp extends Metric {
         if (response) {
             // Convert the response to a JSON object
             try {
-                //save response to a file
-                const fs = require('fs');
-                fs.writeFileSync('response.json', response);
                 const jsonResponse = JSON.parse(response);
         
                 // Access the ramp_up_score value
                 const rampUpScore = jsonResponse.ramp_up_score;
-                console.log("RampUp Score: ", rampUpScore);
+                //console.log("RampUp Score: ", rampUpScore);
                 return rampUpScore;
             } catch (error) {
                 console.error("Failed to parse the response:", error);

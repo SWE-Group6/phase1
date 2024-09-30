@@ -28,9 +28,9 @@ export class AllMetrics {
             await Promise.all(this.metrics.map(metric => metric.calculateScoreNPM()));
 
             this.metrics.forEach(metric => {
-                console.log(metric.constructor.name);
-                console.log("Score: " + metric.getScore());
-                console.log("Weight: " + metric.weight);
+                // console.log(metric.constructor.name);
+                // console.log("Score: " + metric.getScore());
+                // console.log("Weight: " + metric.weight);
                 this.netScore += metric.getScore() * metric.weight;     
                 this.netScoreLatency += metric.getLatency();       
             });
@@ -39,9 +39,9 @@ export class AllMetrics {
             await Promise.all(this.metrics.map(metric => metric.calculateScoreGithub()));
 
             this.metrics.forEach(metric => {
-                console.log(metric.constructor.name);
-                console.log("Score: " + metric.getScore());
-                console.log("Weight: " + metric.weight);
+                // console.log(metric.constructor.name);
+                // console.log("Score: " + metric.getScore());
+                // console.log("Weight: " + metric.weight);
                 this.netScore += metric.getScore() * metric.weight;
                 this.netScoreLatency += metric.getLatency();     
             });
