@@ -13,8 +13,8 @@ export abstract class Metric {
         this.latency = 0;
         this.url = url;
         dotenv.config();
-        if (process.env.GITHUB_TOKEN_TEST) {
-            this.token = process.env.GITHUB_TOKEN_TEST;
+        if (process.env.GITHUB_TOKEN) {
+            this.token = process.env.GITHUB_TOKEN;
         }
         else {
             // throw an error
